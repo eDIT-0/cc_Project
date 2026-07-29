@@ -1,0 +1,33 @@
+# Godot 4+ specific
+.godot/
+.import/
+export.cfg
+export_credentials.cfg
+*.translation
+
+# Mono / C# (на всякий случай, даже если используем GDScript)
+.mono/
+data_*/
+mono_crash.*.json
+
+# System
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+*~
+
+# Builds / exports
+builds/
+export/
+*.apk
+*.aab
+*.ipa
+*.exe
+*.x86_64
+*.app
+
+# IDE
+.vscode/
+.idea/
+*.swp
