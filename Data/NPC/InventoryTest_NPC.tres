@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="NPCData" format=3 uid="uid://61gg7smid7a"]
+
+[ext_resource type="Script" uid="uid://u67dcmguof77" path="res://Scripts/Hub/npc_data.gd" id="1_0weia"]
+[ext_resource type="Resource" uid="uid://baf2852mpnh23" path="res://Dialogue/KeyGiverNPC.dialogue" id="1_45w27"]
+
+[resource]
+script = ExtResource("1_0weia")
+npc_id = "001"
+display_name = "Раздатчик ключей"
+dialogue = ExtResource("1_45w27")
+metadata/_custom_type_script = "uid://u67dcmguof77"

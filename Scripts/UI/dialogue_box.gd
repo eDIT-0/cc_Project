@@ -31,6 +31,9 @@ var _awaiting_choice: bool = false
 
 
 func _ready() -> void:
+	# По группе другие системы узнают, идёт ли сейчас диалог, не зная, в
+	# какой сцене и где именно лежит DialogueBox (см. InventoryScreen).
+	add_to_group("dialogue_box")
 	_panel.visible = false
 	_choices_container.visible = false
 	_panel.gui_input.connect(_on_panel_gui_input)

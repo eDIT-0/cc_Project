@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://baf2852mpnh23"
+path="res://.godot/imported/KeyGiverNPC.dialogue-fbf454529ffc0c938ea67f00bc687359.tres"
+
+[deps]
+
+source_file="res://Dialogue/KeyGiverNPC.dialogue"
+dest_files=["res://.godot/imported/KeyGiverNPC.dialogue-fbf454529ffc0c938ea67f00bc687359.tres"]
+
+[params]
+
+defaults=true

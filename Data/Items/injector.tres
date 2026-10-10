@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="1_item"]
+[ext_resource type="Script" path="res://Scripts/Items/log_stub_effect.gd" id="2_stub"]
+[ext_resource type="Script" path="res://Scripts/Items/item_effect.gd" id="3_effect"]
+
+[sub_resource type="Resource" id="Resource_e1"]
+script = ExtResource("2_stub")
+message = "восстановление здоровья (заглушка — здоровья ещё нет)"
+
+[resource]
+script = ExtResource("1_item")
+item_id = "injector"
+display_name = "Инъектор"
+description = "Заводской медицинский инъектор. Быстро восстанавливает здоровье."
+max_stack = 3
+usable_in_field = true
+usable_in_combat = true
+base_price = 150
+effects = Array[ExtResource("3_effect")]([SubResource("Resource_e1")])

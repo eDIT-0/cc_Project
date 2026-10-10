@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "knife_homemade"
+display_name = "Самодельный нож"
+description = "Заточенная железка с обмотанной рукоятью. Долго не протянет."
+max_durability = 2
+consumed_on_use = false
+base_price = 15

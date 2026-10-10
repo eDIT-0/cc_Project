@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CraftRecipe" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Items/craft_recipe.gd" id="1_recipe"]
+[ext_resource type="Resource" path="res://Data/Items/herb_green.tres" id="2_a"]
+[ext_resource type="Resource" path="res://Data/Items/green_powder.tres" id="4_result"]
+
+[resource]
+script = ExtResource("1_recipe")
+ingredient_a = ExtResource("2_a")
+ingredient_b = ExtResource("2_a")
+result = ExtResource("4_result")
+result_count = 1

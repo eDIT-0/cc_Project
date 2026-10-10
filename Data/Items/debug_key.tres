@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "debug_key"
+display_name = "Тестовый ключ"
+description = "Отладочный ключевой предмет для проверки экрана переполнения. Выбросить нельзя."
+is_key_item = true

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftRecipe" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Items/craft_recipe.gd" id="1_recipe"]
+[ext_resource type="Resource" path="res://Data/Items/gunpowder.tres" id="2_a"]
+[ext_resource type="Resource" path="res://Data/Items/metal_parts_small.tres" id="3_b"]
+[ext_resource type="Resource" path="res://Data/Items/ammo_45.tres" id="4_result"]
+
+[resource]
+script = ExtResource("1_recipe")
+ingredient_a = ExtResource("2_a")
+ingredient_b = ExtResource("3_b")
+result = ExtResource("4_result")
+result_count = 10

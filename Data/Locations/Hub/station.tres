@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://u6hyjl5l6pkx" path="res://Scripts/Hub/hub_location.gd" id="2_yxcpi"]
 [ext_resource type="Resource" uid="uid://cyx7th5qhp3a5" path="res://Data/Locations/Hub/Navigation/station_terminal.tres" id="3_jrb68"]
 [ext_resource type="Script" uid="uid://u67dcmguof77" path="res://Scripts/Hub/npc_data.gd" id="4_jrb68"]
+[ext_resource type="Resource" uid="uid://61gg7smid7a" path="res://Data/NPC/InventoryTest_NPC.tres" id="5_oujbi"]
 
 [resource]
 script = ExtResource("2_yxcpi")
@@ -12,4 +13,5 @@ location_id = "metro_station"
 display_name = "Станция метро"
 intro_text = ""
 choices = Array[ExtResource("1_oto54")]([ExtResource("2_od28y"), ExtResource("3_jrb68")])
+npcs = Array[ExtResource("4_jrb68")]([ExtResource("5_oujbi")])
 metadata/_custom_type_script = "uid://u6hyjl5l6pkx"

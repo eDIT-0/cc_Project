@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "ammo_heavy"
+display_name = "Патроны крупного калибра"
+description = "Патроны для Доминатора."
+max_stack = 10
+base_price = 15

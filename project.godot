@@ -19,6 +19,8 @@ config/icon="res://icon.svg"
 QuestManager="*uid://dal42w77p2n35"
 GameManager="*uid://d1odsll7ri5fw"
 DialogueManager="*uid://c3rodes2l3gxb"
+PlayerState="*uid://ejuo3t6hssfd"
+InventoryScreen="*uid://tu2fcxmykm5"
 
 [display]
 
@@ -31,7 +33,7 @@ enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg")
 
 [internationalization]
 
-locale/translations_pot_files=PackedStringArray("res://Dialogue/side_quest_offer.dialogue", "res://Dialogue/found_wallet.dialogue", "res://Dialogue/npc_encounter_good.dialogue", "res://Dialogue/npc_encounter_bad.dialogue", "res://Dialogue/wall_hole.dialogue", "res://Dialogue/quest_010.dialogue", "res://Dialogue/quest_111.dialogue", "res://Dialogue/merchant_wanderer.dialogue")
+locale/translations_pot_files=PackedStringArray("res://Dialogue/found_wallet.dialogue", "res://Dialogue/npc_encounter_good.dialogue", "res://Dialogue/npc_encounter_bad.dialogue", "res://Dialogue/wall_hole.dialogue", "res://Dialogue/quest_010.dialogue", "res://Dialogue/quest_111.dialogue", "res://Dialogue/merchant_wanderer.dialogue", "res://Dialogue/KeyGiverNPC.dialogue")
 
 [physics]
 

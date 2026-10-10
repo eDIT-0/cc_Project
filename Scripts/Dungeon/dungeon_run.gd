@@ -72,6 +72,11 @@ func _ready() -> void:
 	generator.dungeon_generated.connect(_on_dungeon_generated)
 
 
+## Ушли со сцены лабиринта (возврат в хаб, смерть и т.п.) — снова в городе.
+func _exit_tree() -> void:
+	PlayerState.in_dungeon = false
+
+
 # ====================== ПУБЛИЧНЫЙ ИНТЕРФЕЙС ДЛЯ ВИДА ======================
 
 func is_running() -> bool:
@@ -147,6 +152,7 @@ func _on_dungeon_generated() -> void:
 	_random_event_occurrences.clear()
 	_current_merchant = null
 	_is_running = true
+	PlayerState.in_dungeon = true
 	run_started.emit()
 
 
