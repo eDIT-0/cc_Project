@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MerchantData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Dungeon/merchant_data.gd" id="1_md"]
+[ext_resource type="Resource" path="res://Dialogue/merchant_wanderer.dialogue" id="2_mdlg"]
+
+[resource]
+script = ExtResource("1_md")
+title = "Странствующий торговец"
+weight = 30
+dialogue = ExtResource("2_mdlg")

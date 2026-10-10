@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="HubChoice" format=3 uid="uid://dk7suw6bk2hui"]
+
+[ext_resource type="Script" uid="uid://cmbnil7i35242" path="res://Scripts/Hub/hub_choice.gd" id="1_qwoo6"]
+
+[resource]
+script = ExtResource("1_qwoo6")
+label = "Вернуться на улицу"
+target_location_id = "street"
+metadata/_custom_type_script = "uid://cmbnil7i35242"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="NPCData" format=3 uid="uid://3eqmq60wplsj"]
+
+[ext_resource type="Resource" uid="uid://c7mruc34qaj0d" path="res://Scripts/Quests/test_quest.tres" id="1_ca21x"]
+[ext_resource type="Script" uid="uid://u67dcmguof77" path="res://Scripts/Hub/npc_data.gd" id="2_taw54"]
+
+[resource]
+script = ExtResource("2_taw54")
+npc_id = "11"
+display_name = "Тестовый персонаж"
+offered_quest = ExtResource("1_ca21x")

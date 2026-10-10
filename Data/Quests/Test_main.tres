@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MainQuestEvent" format=3 uid="uid://b3lwpe3kk7g1w"]
+
+[ext_resource type="Script" uid="uid://b4glas8o87fh3" path="res://Scripts/Dungeon/main_quest_event.gd" id="1_vrbsf"]
+
+[resource]
+script = ExtResource("1_vrbsf")
+quest_id = "001"
+quest_name = "Test"
+description = "Тестовый основной"
+metadata/_custom_type_script = "uid://b4glas8o87fh3"

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="NPCData" format=3 uid="uid://q8airkvlq530"]
+
+[ext_resource type="Script" uid="uid://u67dcmguof77" path="res://Scripts/Hub/npc_data.gd" id="1_acaxr"]
+[ext_resource type="Resource" uid="uid://divsqlvaqymfy" path="res://Scripts/Quests/test_second.tres" id="1_f250n"]
+
+[resource]
+script = ExtResource("1_acaxr")
+npc_id = "21"
+display_name = "Тестович"
+offered_quest = ExtResource("1_f250n")
+metadata/_custom_type_script = "uid://u67dcmguof77"

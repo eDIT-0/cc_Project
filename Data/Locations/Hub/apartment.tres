@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HubLocation" format=3 uid="uid://osrkskm2x5k"]
+
+[ext_resource type="Script" uid="uid://cmbnil7i35242" path="res://Scripts/Hub/hub_choice.gd" id="1_rkk0y"]
+[ext_resource type="Script" uid="uid://u6hyjl5l6pkx" path="res://Scripts/Hub/hub_location.gd" id="2_dso7e"]
+[ext_resource type="Resource" uid="uid://bq12a4otbyohk" path="res://Data/Locations/Hub/Navigation/apartment_move1.tres" id="2_q3ooq"]
+[ext_resource type="Script" uid="uid://u67dcmguof77" path="res://Scripts/Hub/npc_data.gd" id="3_q3ooq"]
+
+[resource]
+script = ExtResource("2_dso7e")
+location_id = "apartment"
+display_name = "Квартира"
+intro_text = ""
+choices = Array[ExtResource("1_rkk0y")]([ExtResource("2_q3ooq")])

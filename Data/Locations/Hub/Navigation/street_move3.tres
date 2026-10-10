@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="HubChoice" format=3 uid="uid://7gp5mjuthtor"]
+
+[ext_resource type="Script" uid="uid://cmbnil7i35242" path="res://Scripts/Hub/hub_choice.gd" id="1_r7202"]
+
+[resource]
+script = ExtResource("1_r7202")
+label = "На станцию"
+target_location_id = "metro_station"
+metadata/_custom_type_script = "uid://cmbnil7i35242"

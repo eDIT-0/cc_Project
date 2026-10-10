@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="HubChoice" format=3 uid="uid://b1fs24qyxk8kb"]
+
+[ext_resource type="Script" uid="uid://cmbnil7i35242" path="res://Scripts/Hub/hub_choice.gd" id="1_jr6jv"]
+
+[resource]
+script = ExtResource("1_jr6jv")
+label = "Зайти в магазин"
+target_location_id = "shop"
+metadata/_custom_type_script = "uid://cmbnil7i35242"

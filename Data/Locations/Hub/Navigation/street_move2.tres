@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="HubChoice" format=3 uid="uid://b31svxg8t2qya"]
+
+[ext_resource type="Script" uid="uid://cmbnil7i35242" path="res://Scripts/Hub/hub_choice.gd" id="1_j0vhi"]
+
+[resource]
+script = ExtResource("1_j0vhi")
+label = "Домой"
+target_location_id = "apartment"
+metadata/_custom_type_script = "uid://cmbnil7i35242"

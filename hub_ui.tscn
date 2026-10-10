@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://d15ngntvsfwue"]
+
+[ext_resource type="Script" uid="uid://da6njwhbc3equ" path="res://Scripts/Hub/hub_ui.gd" id="1_jqkrd"]
+[ext_resource type="Script" uid="uid://iyqugjrx5kpf" path="res://Scripts/Hub/hub_manager.gd" id="2_ak0c7"]
+[ext_resource type="Script" uid="uid://u6hyjl5l6pkx" path="res://Scripts/Hub/hub_location.gd" id="3_xijn0"]
+[ext_resource type="Resource" uid="uid://osrkskm2x5k" path="res://Data/Locations/Hub/apartment.tres" id="4_r4v0u"]
+[ext_resource type="Resource" uid="uid://rbuq8c5sj22y" path="res://Data/Locations/Hub/shop.tres" id="5_nn6pk"]
+[ext_resource type="Resource" uid="uid://dwyo8e5tlsvov" path="res://Data/Locations/Hub/street.tres" id="6_fhifi"]
+[ext_resource type="Resource" uid="uid://bux1i1mlm4cnr" path="res://Data/Locations/Hub/station.tres" id="7_r4v0u"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/dialogue_box.tscn" id="8_dbox"]
+
+[node name="HubUI" type="Control" unique_id=155528014 node_paths=PackedStringArray("hub_manager")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jqkrd")
+hub_manager = NodePath("HubManager")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1523550469]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ChoicesContainer" type="VBoxContainer" parent="." unique_id=483863226]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 772.0
+offset_top = -307.0
+offset_bottom = -120.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="NpcContainer" type="VBoxContainer" parent="." unique_id=1598084180]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DialogueBox" parent="." unique_id=1984556073 instance=ExtResource("8_dbox")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="HubManager" type="Node" parent="." unique_id=38727614]
+script = ExtResource("2_ak0c7")
+locations = Array[ExtResource("3_xijn0")]([ExtResource("4_r4v0u"), ExtResource("5_nn6pk"), ExtResource("6_fhifi"), ExtResource("7_r4v0u")])

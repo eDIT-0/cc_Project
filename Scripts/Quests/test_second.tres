@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SideQuestEvent" format=3 uid="uid://divsqlvaqymfy"]
+
+[ext_resource type="Script" uid="uid://cddtemo2d3s8o" path="res://Scripts/Dungeon/side_quest_event.gd" id="1_yna5v"]
+[ext_resource type="Resource" path="res://Dialogue/quest_010.dialogue" id="2_q010"]
+
+[resource]
+script = ExtResource("1_yna5v")
+quest_id = "010"
+quest_name = "test2"
+location_id = "test_zone"
+dialogue = ExtResource("2_q010")
+description = "тестовый квест для проверки гибкости системы"
+requires_acceptance = false
+instant_reward = true
+prerequisite_quest_ids = Array[String](["111"])
+metadata/_custom_type_script = "uid://cddtemo2d3s8o"

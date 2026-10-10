@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HubChoice" format=3 uid="uid://cyx7th5qhp3a5"]
+
+[ext_resource type="Resource" uid="uid://c4nhi474wcr1y" path="res://Data/Locations/Dungeon/test_location.tres" id="1_16xrv"]
+[ext_resource type="Script" uid="uid://cmbnil7i35242" path="res://Scripts/Hub/hub_choice.gd" id="1_iwblf"]
+
+[resource]
+script = ExtResource("1_iwblf")
+label = "Открыть терминал"
+enters_dangerous_zone = true
+dungeon_location = ExtResource("1_16xrv")
+metadata/_custom_type_script = "uid://cmbnil7i35242"

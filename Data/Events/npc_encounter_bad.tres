@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RandomEvent" format=3]
+
+[ext_resource type="Script" uid="uid://dblyhrtrfbmjt" path="res://Scripts/Dungeon/random_event.gd" id="1_bad"]
+[ext_resource type="Resource" path="res://Dialogue/npc_encounter_bad.dialogue" id="2_bad_dlg"]
+
+[resource]
+script = ExtResource("1_bad")
+title = "Встреча с прохожим (грабитель)"
+weight = 30
+dialogue = ExtResource("2_bad_dlg")
+metadata/_custom_type_script = "uid://dblyhrtrfbmjt"

@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://skiq8uutmp1"
+path="res://.godot/imported/wall_hole.dialogue-176add7e25383add543cb27bfb8739fe.tres"
+
+[deps]
+
+source_file="res://Dialogue/wall_hole.dialogue"
+dest_files=["res://.godot/imported/wall_hole.dialogue-176add7e25383add543cb27bfb8739fe.tres"]
+
+[params]
+
+defaults=true

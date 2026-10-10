@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://14ieshxd5bi6"
+path="res://.godot/imported/npc_encounter_good.dialogue-fd32a556c52a99c8003ccb572d8fd219.tres"
+
+[deps]
+
+source_file="res://Dialogue/npc_encounter_good.dialogue"
+dest_files=["res://.godot/imported/npc_encounter_good.dialogue-fd32a556c52a99c8003ccb572d8fd219.tres"]
+
+[params]
+
+defaults=true

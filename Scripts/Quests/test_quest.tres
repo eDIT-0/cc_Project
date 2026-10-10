@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SideQuestEvent" format=3 uid="uid://c7mruc34qaj0d"]
+
+[ext_resource type="Resource" uid="uid://b4fvnc11uy7qm" path="res://Dialogue/quest_111.dialogue" id="1_dmc4s"]
+[ext_resource type="Script" uid="uid://cddtemo2d3s8o" path="res://Scripts/Dungeon/side_quest_event.gd" id="1_gjqmb"]
+
+[resource]
+script = ExtResource("1_gjqmb")
+quest_id = "111"
+quest_name = "Test_side"
+location_id = "test_zone"
+dialogue = ExtResource("1_dmc4s")
+description = "тестовый квест для проверки работоспособности системы"
+metadata/_custom_type_script = "uid://cddtemo2d3s8o"

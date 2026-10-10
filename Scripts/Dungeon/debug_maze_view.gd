@@ -1,0 +1,114 @@
+class_name DebugMazeView
+extends Node2D
+## ВРЕМЕННЫЙ отладочный рендер. Не финальная система показа сцены —
+## та будет построена под макет (статичная картинка + миникарта, см.
+## обсуждение VN-подхода). Этот скрипт — просто чтобы глазами увидеть,
+## что генератор реально что-то строит, пока макет не готов.
+##
+## Теперь это ТОЛЬКО вид: рисует карту и переводит WASD в DungeonRun.try_move().
+## Все правила и состояние забега (позиция игрока, ивенты, квесты, торговец,
+## "дыра в стене", выход) живут в DungeonRun — новый экран вместо этого
+## узла должен повторить только то, что есть здесь: подписаться на сигналы
+## DungeonRun, рисовать и звать try_move().
+##
+## Управление: WASD — абсолютные стороны света (W=север, не "вперёд").
+## Tab — показать/скрыть расстояние от старта по коридорам в каждой комнате.
+
+@export var generator: DungeonGenerator  ## Только для чтения тайлов при отрисовке
+@export var run: DungeonRun
+@export var tile_size: int = 24
+## Отладка: числа поверх комнат — длина пути от старта (переключается Tab).
+@export var show_room_distances: bool = false
+
+@onready var _dialogue_box: DialogueBox = %DialogueBox
+
+
+func _ready() -> void:
+	if generator == null or run == null:
+		push_error("DebugMazeView: поля Generator и/или Run не назначены в инспекторе!")
+		return
+
+	run.run_started.connect(queue_redraw)
+	run.map_changed.connect(queue_redraw)
+	run.player_moved.connect(func(_tile): queue_redraw())
+	# Показ диалогов — забота вида: DungeonRun только просит, а какой
+	# DialogueBox (или вообще другой UI) его покажет, решается здесь.
+	run.dialogue_requested.connect(_dialogue_box.play)
+
+
+func _draw() -> void:
+	if generator == null or run == null or not generator.is_generated:
+		return
+
+	for x in range(generator.tile_count_x):
+		for y in range(generator.tile_count_y):
+			var tile := generator.get_tile(Vector2i(x, y))
+			if tile == null:
+				continue
+			var rect := Rect2(x * tile_size, y * tile_size, tile_size - 1, tile_size - 1)
+			draw_rect(rect, _color_for_tile(tile))
+
+	if show_room_distances:
+		_draw_room_distances()
+
+	# Игрок — белый квадрат поверх текущего тайла
+	var player_tile := run.get_player_tile()
+	var player_rect := Rect2(
+		player_tile.x * tile_size + 4, player_tile.y * tile_size + 4,
+		tile_size - 8, tile_size - 8
+	)
+	draw_rect(player_rect, Color.WHITE)
+
+
+func _draw_room_distances() -> void:
+	var font := ThemeDB.fallback_font
+	var font_size := int(tile_size * 0.5)
+	for rx in range(generator.room_count_x):
+		for ry in range(generator.room_count_y):
+			var d := generator.get_room_distance(Vector2i(rx, ry))
+			if d < 0:
+				continue
+			# Центр комнаты в тайлах — (r * 2 + 1), как DungeonGenerator._room_to_tile
+			var tile_pos := Vector2(rx * 2 + 1, ry * 2 + 1) * tile_size
+			var baseline := tile_pos + Vector2(0, tile_size * 0.7)
+			draw_string(font, baseline, str(d), HORIZONTAL_ALIGNMENT_CENTER, tile_size, font_size, Color.BLACK)
+
+
+func _color_for_tile(tile: DungeonTile) -> Color:
+	if tile.type == DungeonTypes.TileType.WALL:
+		return Color(0.12, 0.12, 0.12)
+
+	match tile.event_type:
+		DungeonTypes.EventType.ENEMY: return Color.CRIMSON
+		DungeonTypes.EventType.REWARD: return Color.GOLD
+		DungeonTypes.EventType.QUEST: return Color.MEDIUM_PURPLE
+		DungeonTypes.EventType.MERCHANT: return Color.LIME_GREEN
+		DungeonTypes.EventType.EXIT: return Color.DEEP_SKY_BLUE
+		DungeonTypes.EventType.SIDE_QUEST: return Color.CYAN
+		DungeonTypes.EventType.RANDOM_EVENT: return Color.ORANGE
+		_: return Color(0.55, 0.55, 0.55)  # Empty и всё остальное
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+
+	# Отладочный оверлей — работает и при открытом диалоге, ход не тратит
+	if event.keycode == KEY_TAB:
+		show_room_distances = not show_room_distances
+		queue_redraw()
+		get_viewport().set_input_as_handled()
+		return
+
+	if run == null or not run.is_running() or _dialogue_box.is_active():
+		return
+
+	var direction: DungeonTypes.Direction
+	match event.keycode:
+		KEY_W: direction = DungeonTypes.Direction.NORTH
+		KEY_S: direction = DungeonTypes.Direction.SOUTH
+		KEY_A: direction = DungeonTypes.Direction.WEST
+		KEY_D: direction = DungeonTypes.Direction.EAST
+		_: return
+
+	run.try_move(direction)

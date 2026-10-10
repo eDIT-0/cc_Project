@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://4l86lb4vtok0"]
+
+[ext_resource type="Script" uid="uid://du3bb6q72smk0" path="res://Scripts/Dungeon/dungeon_generator.gd" id="1_6xevg"]
+[ext_resource type="Resource" uid="uid://c4nhi474wcr1y" path="res://Data/Locations/Dungeon/test_location.tres" id="2_0mgyy"]
+[ext_resource type="Script" uid="uid://d0tqvd0ims2uv" path="res://Scripts/Dungeon/debug_maze_view.gd" id="3_ujpag"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/dialogue_box.tscn" id="4_dbox"]
+[ext_resource type="Script" uid="uid://cq2vohqkr14jc" path="res://Scripts/Dungeon/dungeon_run.gd" id="5_run"]
+
+[node name="DungeonTest" type="Node" unique_id=150499734]
+script = ExtResource("1_6xevg")
+location_data = ExtResource("2_0mgyy")
+
+[node name="DungeonRun" type="Node" parent="." unique_id=1991604250 node_paths=PackedStringArray("generator")]
+script = ExtResource("5_run")
+generator = NodePath("..")
+
+[node name="DebugView" type="Node2D" parent="." unique_id=2145469763 node_paths=PackedStringArray("generator", "run")]
+script = ExtResource("3_ujpag")
+generator = NodePath("..")
+run = NodePath("../DungeonRun")
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=823782547]
+
+[node name="DialogueBox" parent="UILayer" unique_id=1016342598 instance=ExtResource("4_dbox")]
+unique_name_in_owner = true

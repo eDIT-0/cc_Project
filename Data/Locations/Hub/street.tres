@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="HubLocation" format=3 uid="uid://dwyo8e5tlsvov"]
+
+[ext_resource type="Script" uid="uid://cmbnil7i35242" path="res://Scripts/Hub/hub_choice.gd" id="1_nf3rm"]
+[ext_resource type="Script" uid="uid://u6hyjl5l6pkx" path="res://Scripts/Hub/hub_location.gd" id="2_85wyc"]
+[ext_resource type="Resource" uid="uid://b1fs24qyxk8kb" path="res://Data/Locations/Hub/Navigation/street_move1.tres" id="2_utqru"]
+[ext_resource type="Resource" uid="uid://b31svxg8t2qya" path="res://Data/Locations/Hub/Navigation/street_move2.tres" id="3_ois48"]
+[ext_resource type="Resource" uid="uid://7gp5mjuthtor" path="res://Data/Locations/Hub/Navigation/street_move3.tres" id="4_ois48"]
+[ext_resource type="Script" uid="uid://u67dcmguof77" path="res://Scripts/Hub/npc_data.gd" id="5_mu2o8"]
+[ext_resource type="Resource" uid="uid://3eqmq60wplsj" path="res://Data/NPC/TestNPC.tres" id="6_dd44n"]
+
+[resource]
+script = ExtResource("2_85wyc")
+location_id = "street"
+display_name = "Улица"
+intro_text = ""
+choices = Array[ExtResource("1_nf3rm")]([ExtResource("2_utqru"), ExtResource("3_ois48"), ExtResource("4_ois48")])
+npcs = Array[ExtResource("5_mu2o8")]([ExtResource("6_dd44n")])

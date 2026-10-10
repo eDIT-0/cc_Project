@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RandomEvent" format=3 uid="uid://dm3kx87yaomfa"]
+
+[ext_resource type="Script" uid="uid://dblyhrtrfbmjt" path="res://Scripts/Dungeon/random_event.gd" id="1_wallet"]
+[ext_resource type="Resource" uid="uid://bjcjjx1a3d0dw" path="res://Dialogue/found_wallet.dialogue" id="2_wallet_dlg"]
+
+[resource]
+script = ExtResource("1_wallet")
+title = "Кошелёк на дороге"
+dialogue = ExtResource("2_wallet_dlg")
+metadata/_custom_type_script = "uid://dblyhrtrfbmjt"

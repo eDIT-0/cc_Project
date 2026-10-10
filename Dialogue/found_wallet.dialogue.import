@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://bjcjjx1a3d0dw"
+path="res://.godot/imported/found_wallet.dialogue-ed3924bd55152a540486e625942f84a3.tres"
+
+[deps]
+
+source_file="res://Dialogue/found_wallet.dialogue"
+dest_files=["res://.godot/imported/found_wallet.dialogue-ed3924bd55152a540486e625942f84a3.tres"]
+
+[params]
+
+defaults=true
