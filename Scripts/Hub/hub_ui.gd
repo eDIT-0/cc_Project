@@ -10,6 +10,9 @@ extends Control
 
 @export var hub_manager: HubManager
 
+## Куда возвращать, если здоровье упало до 0 в хабе (location_id квартиры).
+const HOME_LOCATION_ID := "apartment"
+
 # "%Имя" — это Scene Unique Name. В редакторе: ПКМ по узлу -> "Access as Unique Name".
 @onready var _background_rect: TextureRect = %Background
 @onready var _choices_container: VBoxContainer = %ChoicesContainer
@@ -18,6 +21,8 @@ extends Control
 
 ## Текущий разговор с NPC (TALK_FIRST) — ждём его конца, чтобы открыть квест.
 var _pending_talk: NPCTalk = null
+## Здоровье упало до 0 в хабе (не должно, страховка от багов) — ждём конца диалога.
+var _hub_defeat_pending: bool = false
 
 func _ready() -> void:
 	if hub_manager == null:
@@ -26,6 +31,7 @@ func _ready() -> void:
 
 	hub_manager.location_changed.connect(_on_location_changed)
 	_dialogue_box.finished.connect(_on_dialogue_finished)
+	PlayerState.stats.died.connect(_on_player_died)
 
 	# Стартовую локацию запускаем отсюда, а не из HubManager._ready() —
 	# так гарантированно подписываемся на сигналы ДО первой эмиссии.
@@ -62,6 +68,30 @@ func _on_location_changed(location: HubLocation) -> void:
 	# через create_resource_from_text вместо собственной логики показа.
 	if not location.intro_text.is_empty():
 		_dialogue_box.play(DialogueManager.create_resource_from_text("~ start\n%s" % location.intro_text))
+
+
+func _exit_tree() -> void:
+	if PlayerState.stats.died.is_connected(_on_player_died):
+		PlayerState.stats.died.disconnect(_on_player_died)
+
+
+## ====================== Поражение в хабе (страховка) ======================
+## В хабе здоровье падать не должно. Если всё же упало (баг) — без штрафов:
+## домой, в квартиру, с половиной здоровья. Наказывать за баг нечестно.
+
+func _on_player_died() -> void:
+	if _dialogue_box.is_active():
+		_hub_defeat_pending = true
+	else:
+		_recover_at_home()
+
+
+func _recover_at_home() -> void:
+	push_warning("HubUI: здоровье упало до 0 в хабе — так быть не должно. Возвращаю в квартиру.")
+	PlayerState.stats.restore_to_fraction(PlayerState.DEFEAT_RESTORE_FRACTION)
+	hub_manager.go_to(HOME_LOCATION_ID)
+	_dialogue_box.play(DialogueManager.create_resource_from_text(
+		"~ start\nТы приходишь в себя у себя в квартире. Голова раскалывается."))
 
 
 ## ====================== Навигация по хабу ======================
@@ -125,6 +155,11 @@ func _on_npc_pressed(npc: NPCData) -> void:
 ## Разговор с NPC дочитан: если игрок выбрал пункт про задание
 ## (talk.ask_about_quest()) — открываем квестовый диалог.
 func _on_dialogue_finished() -> void:
+	if _hub_defeat_pending:
+		_hub_defeat_pending = false
+		_pending_talk = null
+		_recover_at_home()
+		return
 	var talk := _pending_talk
 	_pending_talk = null
 	if talk != null and talk.quest_requested:

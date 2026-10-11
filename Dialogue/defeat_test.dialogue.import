@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://dv053nb1qdkql"
+path="res://.godot/imported/defeat_test.dialogue-a1627511b4b5b16c3e8fc144de3d9b8f.tres"
+
+[deps]
+
+source_file="res://Dialogue/defeat_test.dialogue"
+dest_files=["res://.godot/imported/defeat_test.dialogue-a1627511b4b5b16c3e8fc144de3d9b8f.tres"]
+
+[params]
+
+defaults=true

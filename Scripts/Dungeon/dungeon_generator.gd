@@ -495,6 +495,20 @@ func get_start_tile() -> Vector2i:
 	return _room_to_tile(Vector2i.ZERO)
 
 
+## Клетки-комнаты без события (EMPTY) — куда можно "выбросить" игрока
+## после поражения. Коридоры не берём: очнуться посреди прохода странно.
+func get_empty_room_tiles() -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for x in range(room_count_x):
+		for y in range(room_count_y):
+			var tile_pos := _room_to_tile(Vector2i(x, y))
+			var tile := _get_tile(tile_pos)
+			if tile != null and tile.type == DungeonTypes.TileType.FLOOR \
+					and tile.event_type == DungeonTypes.EventType.EMPTY:
+				result.append(tile_pos)
+	return result
+
+
 func get_event_at_room(room_pos: Vector2i) -> DungeonTypes.EventType:
 	var tile_pos := _room_to_tile(room_pos)
 	var tile := _get_tile(tile_pos)

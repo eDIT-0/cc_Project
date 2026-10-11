@@ -259,7 +259,15 @@ func add_arousal(amount: int) -> void:
 	_on_stats_changed()
 
 
-## Сон / полный отдых (кровать — следующий шаг).
+## После поражения: здоровье и выносливость — не меньше доли от максимума
+## (то, что выше, не срезаем).
+func restore_to_fraction(fraction: float) -> void:
+	hp = maxi(hp, maxi(1, ceili(get_max_hp() * fraction)))
+	stamina = maxi(stamina, ceili(get_max_stamina() * fraction))
+	_on_stats_changed()
+
+
+## Сон / полный отдых.
 func restore_all() -> void:
 	hp = get_max_hp()
 	stamina = get_max_stamina()

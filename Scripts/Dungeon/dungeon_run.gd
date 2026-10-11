@@ -61,6 +61,14 @@ var _current_merchant: MerchantData = null
 ## и успех попытки).
 var _wall_hole_target: Vector2i
 
+# --- поражение ---
+## Открыт ли сейчас диалог, который мы попросили показать (вид сообщает о
+## конце через on_dialogue_finished). Поражение посреди диалога ждёт его конца.
+var _dialogue_open: bool = false
+var _defeat_pending: bool = false
+var _defeat_pending_scene: DialogueResource = null
+var _defeat_in_progress: bool = false
+
 
 func _ready() -> void:
 	if generator == null:
@@ -71,11 +79,81 @@ func _ready() -> void:
 	# корень сцены, его _ready() (а значит и генерация) идёт ПОСЛЕ _ready()
 	# дочерних узлов, включая этот.
 	generator.dungeon_generated.connect(_on_dungeon_generated)
+	dialogue_requested.connect(func(_r, _c, _s): _dialogue_open = true)
+	PlayerState.stats.died.connect(_on_player_died)
 
 
 ## Ушли со сцены лабиринта (возврат в хаб, смерть и т.п.) — снова в городе.
 func _exit_tree() -> void:
 	PlayerState.in_dungeon = false
+	if PlayerState.stats.died.is_connected(_on_player_died):
+		PlayerState.stats.died.disconnect(_on_player_died)
+
+
+## Вид сообщает: диалог дочитан (DialogueBox.finished). Тут продолжается
+## отложенное поражение.
+func on_dialogue_finished() -> void:
+	_dialogue_open = false
+	if _defeat_in_progress:
+		_finish_defeat()
+	elif _defeat_pending:
+		_defeat_pending = false
+		_start_defeat(_defeat_pending_scene)
+
+
+# ====================== ПОРАЖЕНИЕ ======================
+## Смерти нет: поражение — часть игры. Сцена поражения -> штрафы
+## (PlayerState.apply_defeat) -> игрока "выбрасывает" на случайную пустую
+## комнату. Забег продолжается: выход на месте, выполненные квесты засчитаны.
+
+## Запустить поражение. scene — своя сцена (бой: сцена конкретного врага);
+## null — общая сцена локации (LocationData.defeat_dialogue). Если сейчас
+## открыт диалог — начнётся, когда он закончится.
+func trigger_defeat(scene: DialogueResource = null) -> void:
+	if not _is_running or _defeat_in_progress or _defeat_pending:
+		return
+	if _dialogue_open:
+		_defeat_pending = true
+		_defeat_pending_scene = scene
+		return
+	_start_defeat(scene)
+
+
+func is_defeat_in_progress() -> bool:
+	return _defeat_in_progress or _defeat_pending
+
+
+## Здоровье на нуле вне боя (события). Бой позже будет звать
+## trigger_defeat(сцена_врага) сам.
+func _on_player_died() -> void:
+	trigger_defeat()
+
+
+func _start_defeat(scene: DialogueResource) -> void:
+	_defeat_in_progress = true
+	if scene == null and generator.location_data != null:
+		scene = generator.location_data.defeat_dialogue
+	if scene == null:
+		push_warning("DungeonRun: у локации нет defeat_dialogue — поражение без сцены.")
+		_finish_defeat()
+		return
+	dialogue_requested.emit(scene, "start", [{"run": self}])
+
+
+func _finish_defeat() -> void:
+	_defeat_in_progress = false
+	PlayerState.apply_defeat()
+
+	var candidates := generator.get_empty_room_tiles()
+	candidates.erase(_player_tile)
+	if candidates.is_empty():
+		push_warning("DungeonRun: нет пустых комнат для переноса — остаёмся на месте.")
+	else:
+		_player_tile = candidates[randi() % candidates.size()]
+		generator.mark_as_visited(_player_tile)
+	print("☠ Поражение: очнулся в %s." % str(_player_tile))
+	player_moved.emit(_player_tile)
+	map_changed.emit()
 
 
 # ====================== ПУБЛИЧНЫЙ ИНТЕРФЕЙС ДЛЯ ВИДА ======================

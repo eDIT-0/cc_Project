@@ -41,6 +41,11 @@ const MAZE_STEP_STAMINA := 2
 ## Сон в кровати: сколько длится и что даёт (полное здоровье и выносливость).
 const SLEEP_MINUTES := 8 * 60
 
+## Поражение: сколько игрового времени проходит и до какой доли
+## восстанавливаются здоровье и выносливость.
+const DEFEAT_MINUTES := 2 * 60
+const DEFEAT_RESTORE_FRACTION := 0.5
+
 ## Доля денег, теряемая при смерти (0.1 = 10%). Инвентарь и так отбирается,
 ## поэтому деньги — лишь частично.
 const DEATH_MONEY_LOSS := 0.1
@@ -76,7 +81,7 @@ func _ready() -> void:
 	stash = Inventory.new(catalog, STASH_CAPACITY)
 	stats = CharacterStats.new()
 	stats.arousal_peaked.connect(func(): print("💗 Возбуждение достигло предела и сбросилось (последствия — TODO)."))
-	stats.died.connect(func(): print("☠ Здоровье на нуле (обработка смерти — TODO, вместе с боем)."))
+	stats.died.connect(func(): print("☠ Здоровье на нуле — поражение (обрабатывают DungeonRun / HubUI)."))
 
 	if OS.is_debug_build():
 		for item_id in DEBUG_START_ITEMS:
@@ -253,6 +258,17 @@ func lose_money(amount: int) -> int:
 		print("💰 -%d (всего %d)" % [lost, money])
 		money_changed.emit(money)
 	return lost
+
+
+# ====================== ПОРАЖЕНИЕ ======================
+
+## Штрафы поражения в лабиринте (сцену и перенос делает DungeonRun):
+## предметы (кроме ключевых) и часть денег теряются — on_death(); проходит
+## DEFEAT_MINUTES; здоровье и выносливость — до половины. Опыт не трогаем.
+func apply_defeat() -> void:
+	on_death()
+	advance_time(DEFEAT_MINUTES)
+	stats.restore_to_fraction(DEFEAT_RESTORE_FRACTION)
 
 
 # ====================== СМЕРТЬ ======================

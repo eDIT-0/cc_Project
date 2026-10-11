@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="LocationData" format=3 uid="uid://c4nhi474wcr1y"]
 
+[ext_resource type="Resource" uid="uid://dv053nb1qdkql" path="res://Dialogue/defeat_test.dialogue" id="1_7h6gf"]
 [ext_resource type="Script" uid="uid://db3fagc1jcpfl" path="res://Scripts/Dungeon/location_data.gd" id="1_u0g8t"]
 [ext_resource type="Resource" uid="uid://b3lwpe3kk7g1w" path="res://Data/Quests/Test_main.tres" id="1_x8kmx"]
 [ext_resource type="Script" uid="uid://cddtemo2d3s8o" path="res://Scripts/Dungeon/side_quest_event.gd" id="3_8jiam"]
@@ -25,4 +26,5 @@ reward_weight = 0.0
 random_events = Array[ExtResource("6_revt")]([ExtResource("7_wallet"), ExtResource("8_npc_good"), ExtResource("9_npc_bad"), ExtResource("10_wallhole")])
 merchants = Array[ExtResource("20_mdscript")]([ExtResource("21_merch")])
 merchant_chance = 1.0
+defeat_dialogue = ExtResource("1_7h6gf")
 metadata/_custom_type_script = "uid://db3fagc1jcpfl"

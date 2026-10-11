@@ -34,6 +34,7 @@ func _ready() -> void:
 	# Показ диалогов — забота вида: DungeonRun только просит, а какой
 	# DialogueBox (или вообще другой UI) его покажет, решается здесь.
 	run.dialogue_requested.connect(_dialogue_box.play)
+	_dialogue_box.finished.connect(run.on_dialogue_finished)
 
 
 func _draw() -> void:

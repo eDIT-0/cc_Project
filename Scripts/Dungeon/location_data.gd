@@ -60,6 +60,13 @@ extends Resource
 ## среди событий клеток — отдельный бросок на весь забег.
 @export_range(0.0, 1.0) var merchant_chance: float = 0.15
 
+@export_group("Поражение")
+## Общая сцена поражения ВНЕ боя для этой локации (урон от событий и т.п.).
+## В бою будет своя — у конкретного врага. Нужна секция ~ start; в диалог
+## передаётся {"run": DungeonRun}. Последствия сцены (похоть, возбуждение,
+## флаги) — мутациями прямо в ней; штрафы и перенос делает DungeonRun ПОСЛЕ.
+@export var defeat_dialogue: DialogueResource
+
 @export_group("Дополнительно")
 @export var min_reward_count: int = 2
 
