@@ -7,14 +7,54 @@ extends Resource
 
 @export_group("Отображение")
 @export var background: Texture2D
+## Фоны по времени суток — необязательные: не задан -> обычный background.
+## Днём всегда background.
+@export var background_dawn: Texture2D
+@export var background_dusk: Texture2D
+@export var background_night: Texture2D
 @export_multiline var intro_text: String = "Описание сцены..."
 
 @export_group("Навигация")
 @export var choices: Array[HubChoice] = []
 
 @export_group("Персонажи")
-## Кто присутствует на локации прямо сейчас. Пока просто статичный список —
-## расписание/условия появления (способ 2 получения квеста: NPC на улице
-## только 10:00-17:00) добавятся позже как отдельная логика поверх этого
-## же поля, без изменений в HubUI/HubChoice.
+## Кто может быть на локации. Кто виден прямо сейчас — решает расписание
+## самого NPC (NPCData.present_phases), см. get_present_npcs().
 @export var npcs: Array[NPCData] = []
+
+@export_group("Неприятности")
+## Что может случиться при входе (максимум одно за вход), см. HubEvent.
+@export var events: Array[HubEvent] = []
+
+
+func get_background(phase: GameClock.Phase) -> Texture2D:
+	var by_phase: Texture2D = null
+	match phase:
+		GameClock.Phase.DAWN:
+			by_phase = background_dawn
+		GameClock.Phase.DUSK:
+			by_phase = background_dusk
+		GameClock.Phase.NIGHT:
+			by_phase = background_night
+	return by_phase if by_phase != null else background
+
+
+func get_present_npcs() -> Array[NPCData]:
+	var result: Array[NPCData] = []
+	for npc in npcs:
+		if npc != null and npc.is_present():
+			result.append(npc)
+	return result
+
+
+## Бросить неприятности при входе. Подходящие (фаза, откат) проверяются
+## в случайном порядке, срабатывает первая выпавшая — или никакая (null).
+func roll_event() -> HubEvent:
+	var pool := events.filter(func(e): return e != null and e.is_available())
+	pool.shuffle()
+	for e in pool:
+		var chance: float = e.get_chance()
+		if randf() < chance:
+			print("⚠ Неприятность '%s' (шанс был %d%%)" % [e.title, roundi(chance * 100)])
+			return e
+	return null

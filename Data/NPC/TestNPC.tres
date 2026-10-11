@@ -8,6 +8,7 @@
 script = ExtResource("2_taw54")
 npc_id = "11"
 display_name = "Тестовый персонаж"
+present_phases = 2
 dialogue = ExtResource("1_taw54")
 offered_quest = ExtResource("1_ca21x")
 quest_mode = 0

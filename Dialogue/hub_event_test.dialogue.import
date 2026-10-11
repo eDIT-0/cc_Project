@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://edwa6qf0fpr4"
+path="res://.godot/imported/hub_event_test.dialogue-d135bc24696ddfb315f0f9c0e175ef89.tres"
+
+[deps]
+
+source_file="res://Dialogue/hub_event_test.dialogue"
+dest_files=["res://.godot/imported/hub_event_test.dialogue-d135bc24696ddfb315f0f9c0e175ef89.tres"]
+
+[params]
+
+defaults=true

@@ -31,6 +31,13 @@ signal dialogue_requested(resource: Resource, cue: String, extra_game_states: Ar
 
 @export var generator: DungeonGenerator
 
+## Фразы находки по умолчанию (если у локации нет своих loot_find_texts).
+const DEFAULT_FIND_TEXTS: Array[String] = [
+	"Среди мусора что-то поблёскивает.",
+	"В углу валяется брошенная кем-то сумка.",
+	"Под обломками обнаруживается тайник.",
+]
+
 ## Сложность проверки ЛОВКОСТИ для ивента "дыра в стене" (см.
 ## CharacterStats.get_check_chance: DEX == сложности -> 50%). Сам бросок —
 ## в wall_hole.dialogue (PlayerState.check), сюда передаётся как "difficulty".
@@ -60,6 +67,10 @@ var _current_merchant: MerchantData = null
 ## можно только ПОСЛЕ того, как диалог подтвердил и выбор "протиснуться",
 ## и успех попытки).
 var _wall_hole_target: Vector2i
+
+# --- добыча ---
+## Последний бросок добычи (roll_loot) — ждёт collect_loot().
+var _pending_loot: Dictionary = {}
 
 # --- поражение ---
 ## Открыт ли сейчас диалог, который мы попросили показать (вид сообщает о
@@ -202,6 +213,8 @@ func try_move(direction: DungeonTypes.Direction) -> bool:
 			_on_random_event_tile()
 		DungeonTypes.EventType.MERCHANT:
 			_on_merchant_tile()
+		DungeonTypes.EventType.REWARD:
+			_on_reward_tile()
 		DungeonTypes.EventType.EXIT:
 			_start_return_choice("Станция метро. Вернуться в хаб?")
 
@@ -315,6 +328,8 @@ func _on_random_event_tile() -> void:
 				return false
 			if e.max_occurrences_per_run > 0 and _random_event_occurrences.get(e, 0) >= e.max_occurrences_per_run:
 				return false
+			if location.time_of_day_matters and (e.phases & PlayerState.clock.phase_bit()) == 0:
+				return false
 			return true
 	)
 	if chosen == null:
@@ -356,6 +371,73 @@ func _on_merchant_tile() -> void:
 		push_warning("У торговца '%s' не назначен dialogue." % _current_merchant.title)
 		return
 	dialogue_requested.emit(_current_merchant.dialogue, "start", [{"merchant": _current_merchant}])
+
+
+## Клетка награды: атмосферная фраза + что найдено, затем выдача (через
+## обычный give_item — при полном рюкзаке сработает экран переполнения).
+## Диалог собирается на лету, как у _start_return_choice.
+func _on_reward_tile() -> void:
+	roll_loot()
+	if not has_pending_loot():
+		push_warning("DungeonRun: клетка награды — у локации нет таблицы добычи (LocationData.loot_*).")
+		return
+	# Без двоеточий в тексте: "Слово: текст" Dialogue Manager читает как реплику персонажа.
+	var source := "~ start\n%s\nТы подбираешь — %s.\ndo run.collect_loot()\n=> END\n" % [_pick_find_text(), get_loot_text()]
+	dialogue_requested.emit(DialogueManager.create_resource_from_text(source), "start", [{"run": self}])
+
+
+func _pick_find_text() -> String:
+	var texts: Array[String] = []
+	if generator.location_data != null:
+		texts = generator.location_data.loot_find_texts
+	if texts.is_empty():
+		texts = DEFAULT_FIND_TEXTS
+	return texts[randi() % texts.size()]
+
+
+# ====================== ДОБЫЧА ======================
+## Для клеток REWARD и для ивентов. В .dialogue ивента:
+##   do run.roll_loot()
+##   Ты находишь — {{run.get_loot_text()}}.
+## (без двоеточия: "Слово: текст" Dialogue Manager считает репликой персонажа)
+##   do run.collect_loot()
+
+## Бросить таблицу добычи локации для текущей сложности (или свою).
+func roll_loot(table: LootTable = null) -> void:
+	if table == null and generator.location_data != null:
+		table = generator.location_data.get_loot_table(GameManager.current_difficulty)
+	_pending_loot = table.roll() if table != null else {}
+
+
+func has_pending_loot() -> bool:
+	return not _pending_loot.is_empty() and (not _pending_loot.items.is_empty() or _pending_loot.money > 0)
+
+
+## "Порох x2, Ткань, 12 денег"
+func get_loot_text() -> String:
+	if not has_pending_loot():
+		return "ничего"
+	var parts: PackedStringArray = []
+	for item_id in _pending_loot.items:
+		var item := PlayerState.catalog.get_item(item_id)
+		var count: int = _pending_loot.items[item_id]
+		var item_name: String = item.display_name if item else item_id
+		parts.append(item_name if count == 1 else "%s x%d" % [item_name, count])
+	if _pending_loot.money > 0:
+		parts.append("%d денег" % _pending_loot.money)
+	return ", ".join(parts)
+
+
+## Выдать брошенное. Корутина: диалог (do) ждёт экраны переполнения.
+func collect_loot() -> void:
+	var loot := _pending_loot
+	_pending_loot = {}
+	if loot.is_empty():
+		return
+	for item_id in loot.items:
+		await PlayerState.give_item(item_id, loot.items[item_id])
+	if loot.money > 0:
+		PlayerState.add_money(loot.money)
 
 
 ## Диалог "уйти/остаться" собирается на лету через create_resource_from_text —

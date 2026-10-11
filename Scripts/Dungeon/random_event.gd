@@ -12,6 +12,9 @@ extends Resource
 ## (он — просто данные, общие для всех копий), а DungeonRun — там он
 ## привязан к конкретному забегу и сам обнуляется с новой генерацией.
 @export var max_occurrences_per_run: int = 0
+## В какие фазы суток ивент возможен. Учитывается, только если у локации
+## включён LocationData.time_of_day_matters. Ночной ивент — оставь "Ночь".
+@export_flags("Рассвет", "День", "Закат", "Ночь") var phases: int = 15
 
 @export_group("Диалог")
 ## Каждый ивент — свой отдельный .dialogue-файл (как side_quest_offer.dialogue

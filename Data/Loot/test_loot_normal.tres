@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="LootTable" format=3 uid="uid://dt3yiftcdp84i"]
+
+[ext_resource type="Script" uid="uid://c63ikqrr3wqjn" path="res://Scripts/Loot/loot_table.gd" id="1_table"]
+[ext_resource type="Script" uid="uid://4eekptvym64b" path="res://Scripts/Loot/loot_entry.gd" id="2_entry"]
+[ext_resource type="Resource" path="res://Data/Items/ammo_45.tres" id="i_ammo_45"]
+[ext_resource type="Resource" path="res://Data/Items/cloth.tres" id="i_cloth"]
+[ext_resource type="Resource" path="res://Data/Items/gunpowder.tres" id="i_gunpowder"]
+[ext_resource type="Resource" uid="uid://ds7h5d70rgc7r" path="res://Data/Items/herb_green.tres" id="i_herb_green"]
+[ext_resource type="Resource" uid="uid://ei8uhemnyq68" path="res://Data/Items/homemade_injector.tres" id="i_homemade_injector"]
+[ext_resource type="Resource" path="res://Data/Items/metal_parts_large.tres" id="i_metal_parts_large"]
+[ext_resource type="Resource" path="res://Data/Items/metal_parts_small.tres" id="i_metal_parts_small"]
+
+[sub_resource type="Resource" id="Entry_1"]
+script = ExtResource("2_entry")
+item = ExtResource("i_metal_parts_small")
+weight = 4.0
+max_count = 3
+
+[sub_resource type="Resource" id="Entry_2"]
+script = ExtResource("2_entry")
+item = ExtResource("i_gunpowder")
+weight = 3.0
+max_count = 2
+
+[sub_resource type="Resource" id="Entry_3"]
+script = ExtResource("2_entry")
+item = ExtResource("i_cloth")
+weight = 3.0
+max_count = 2
+
+[sub_resource type="Resource" id="Entry_4"]
+script = ExtResource("2_entry")
+item = ExtResource("i_metal_parts_large")
+weight = 2.0
+
+[sub_resource type="Resource" id="Entry_5"]
+script = ExtResource("2_entry")
+item = ExtResource("i_herb_green")
+weight = 2.0
+
+[sub_resource type="Resource" id="Entry_6"]
+script = ExtResource("2_entry")
+item = ExtResource("i_homemade_injector")
+
+[sub_resource type="Resource" id="Entry_7"]
+script = ExtResource("2_entry")
+item = ExtResource("i_ammo_45")
+min_count = 3
+max_count = 6
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[ExtResource("2_entry")]([SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4"), SubResource("Entry_5"), SubResource("Entry_6"), SubResource("Entry_7")])

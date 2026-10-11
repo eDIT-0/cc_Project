@@ -418,6 +418,24 @@ func _take_from_slot(index: int, amount: int) -> int:
 	return taken
 
 
+## Переложить из ячейки до amount штук в другой инвентарь — сколько
+## влезет (частично тоже можно). Возвращает, сколько переложено.
+## Изнашиваемые всегда по одной и целиком (со своей прочностью).
+func transfer_amount(index: int, target: Inventory, amount: int) -> int:
+	if target == null or target == self or is_slot_empty(index) or amount <= 0:
+		return 0
+	var item := get_slot_item(index)
+	if item.has_durability():
+		return 1 if transfer_slot(index, target) else 0
+	var moved := mini(mini(amount, _slots[index].count), target.space_for(item.item_id))
+	if moved <= 0:
+		return 0
+	target.add(item.item_id, moved)
+	_take_from_slot(index, moved)
+	changed.emit()
+	return moved
+
+
 ## Положить готовую ячейку в первую пустую (для transfer_slot; место
 ## проверено заранее).
 func _put_slot(slot: Dictionary) -> void:

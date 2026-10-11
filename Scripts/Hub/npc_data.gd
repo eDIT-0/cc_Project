@@ -4,7 +4,8 @@ extends Resource
 ## HubChoice/навигацией — присутствие NPC на локации будет позже управляться
 ## отдельной логикой (расписание, уход/приход, способ получения квеста №2
 ## из четырёх обсуждённых), и эта логика не должна лезть в HubChoice ради
-## этого. Пока присутствие статично: просто лежит в HubLocation.npcs.
+## этого. NPC лежит в HubLocation.npcs, а виден ли он сейчас — по
+## расписанию present_phases (is_present()).
 ##
 ## Что происходит по клику (HubUI._on_npc_pressed), если квест актуален
 ## (открыт и ещё не сдан):
@@ -18,6 +19,9 @@ enum QuestMode { QUEST_FIRST, TALK_FIRST }
 @export var npc_id: String = ""
 @export var display_name: String = ""
 @export var portrait: Texture2D
+## Расписание: в какие фазы суток NPC на месте (например, торговец
+## инъекторами в переулке — только "День"). По умолчанию — всегда.
+@export_flags("Рассвет", "День", "Закат", "Ночь") var present_phases: int = 15
 
 @export_group("Диалог")
 ## Обычный разговор. В диалог передаются {"npc": этот ресурс,
@@ -38,3 +42,8 @@ enum QuestMode { QUEST_FIRST, TALK_FIRST }
 @export_group("Торговля")
 ## Если NPC — продавец. Сама торговля открывается из его dialogue.
 @export var merchant: MerchantData
+
+
+## На месте ли сейчас (по времени суток).
+func is_present() -> bool:
+	return (present_phases & PlayerState.clock.phase_bit()) != 0

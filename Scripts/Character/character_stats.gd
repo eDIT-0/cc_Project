@@ -18,7 +18,9 @@ extends RefCounted
 ## Из диалога: PlayerState.stats.get_stat("DEX"), PlayerState.stats.add_arousal(10)
 
 signal changed
-## Возбуждение дошло до 100 и сбросилось в 0. Последствия — TODO.
+## Возбуждение дошло до 100: сброс в 0 и штраф к здоровью/выносливости
+## (см. add_arousal). Сигнал — для боя: TODO боевой контроллер по нему
+## сбрасывает шкалу энергии персонажа (пропуск "хода" / кулдаун).
 signal arousal_peaked
 ## Здоровье упало до 0. Обработку смерти подключит бой/забег — TODO.
 signal died
@@ -40,6 +42,10 @@ const STAMINA_BASE := 50
 const STAMINA_PER_CON := 10
 
 const AROUSAL_MAX := 100
+## Пик возбуждения отнимает долю от МАКСИМУМА здоровья и выносливости.
+## Может довести до поражения — это обрабатывается как обычно.
+const AROUSAL_PEAK_HP_LOSS := 0.3
+const AROUSAL_PEAK_STAMINA_LOSS := 0.3
 ## Пороги возбуждения -> эффект штрафа (по убыванию порога).
 const AROUSAL_STAGES := [
 	[75, "res://Data/Status/arousal_3.tres"],
@@ -248,15 +254,21 @@ func spend_stamina(amount: int) -> void:
 	_on_stats_changed()
 
 
-## Возбуждение. Дошло до AROUSAL_MAX — сброс в 0 и сигнал arousal_peaked.
+## Возбуждение. Дошло до AROUSAL_MAX — сброс в 0, минус 30% от максимума
+## здоровья и выносливости, затем сигнал arousal_peaked (для боя).
 func add_arousal(amount: int) -> void:
 	arousal = maxi(0, arousal + amount)
-	if arousal >= AROUSAL_MAX:
-		arousal = 0
+	if arousal < AROUSAL_MAX:
 		_on_stats_changed()
-		arousal_peaked.emit()
 		return
-	_on_stats_changed()
+
+	arousal = 0
+	var hp_loss := ceili(get_max_hp() * AROUSAL_PEAK_HP_LOSS)
+	var stamina_loss := ceili(get_max_stamina() * AROUSAL_PEAK_STAMINA_LOSS)
+	print("💗 Пик возбуждения: -%d здоровья, -%d выносливости." % [hp_loss, stamina_loss])
+	spend_stamina(stamina_loss)
+	arousal_peaked.emit()
+	damage(hp_loss)  # последним: может вызвать died -> поражение
 
 
 ## После поражения: здоровье и выносливость — не меньше доли от максимума
@@ -339,6 +351,16 @@ func has_group(group: String) -> bool:
 		if effect.group == group:
 			return true
 	return false
+
+
+## Стадия эффекта группы (опьянение "drunk", возбуждение "arousal"):
+## 0 — эффекта нет, иначе StatusEffect.stage самого сильного.
+func get_group_stage(group: String) -> int:
+	var best := 0
+	for effect in get_active_effects():
+		if effect.group == group:
+			best = maxi(best, effect.stage)
+	return best
 
 
 ## Все действующие эффекты: наложенные + системные (возбуждение, изнурение).

@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cmbnil7i35242" path="res://Scripts/Hub/hub_choice.gd" id="1_0c2bd"]
 [ext_resource type="Script" uid="uid://u6hyjl5l6pkx" path="res://Scripts/Hub/hub_location.gd" id="2_0y2w8"]
 [ext_resource type="Resource" uid="uid://cx1obj76w2tce" path="res://Data/Locations/Hub/Navigation/shop_move1.tres" id="2_n3y8l"]
+[ext_resource type="Script" uid="uid://cln1ef1jcgjd2" path="res://Scripts/Hub/hub_event.gd" id="3_6f1bh"]
 [ext_resource type="Script" uid="uid://u67dcmguof77" path="res://Scripts/Hub/npc_data.gd" id="3_op77q"]
 [ext_resource type="Resource" uid="uid://q8airkvlq530" path="res://Data/NPC/testqestNPC.tres" id="4_647jl"]
 [ext_resource type="Resource" path="res://Data/NPC/shopkeeper.tres" id="5_647jl"]

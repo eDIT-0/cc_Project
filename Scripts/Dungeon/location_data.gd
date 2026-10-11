@@ -42,6 +42,10 @@ extends Resource
 @export_range(0.0, 10.0, 0.05, "or_greater") var reward_weight: float = 0.1
 
 @export_group("Случайные ивенты")
+## Локация под открытым небом / живёт по часам: ивенты фильтруются по
+## времени суток (RandomEvent.phases). Выключено (подземелье, бункер) —
+## фазы игнорируются, доступны все ивенты.
+@export var time_of_day_matters: bool = false
 ## Единый пул для этой локации — просто докидываешь подготовленные
 ## RandomEvent в инспекторе, без кода. Раньше тут было два массива
 ## (standard/unique — "общие" и "только для этой локации"), но при
@@ -60,6 +64,20 @@ extends Resource
 ## среди событий клеток — отдельный бросок на весь забег.
 @export_range(0.0, 1.0) var merchant_chance: float = 0.15
 
+@export_group("Добыча (по сложности)")
+## Таблица добычи на каждую сложность (клетки REWARD, ивенты, позже враги).
+## Если для сложности таблица не назначена — берётся ближайшая ЛЁГКАЯ
+## (никогда не более щедрая), см. get_loot_table().
+@export var loot_easy: LootTable
+@export var loot_normal: LootTable
+@export var loot_hard: LootTable
+@export var loot_very_hard: LootTable
+@export var loot_extreme: LootTable
+## Атмосферные фразы для клетки REWARD ("В ржавом шкафчике ты находишь...").
+## Пусто — общие фразы из DungeonRun. Без двоеточий (иначе Dialogue Manager
+## сочтёт начало фразы именем говорящего).
+@export var loot_find_texts: Array[String] = []
+
 @export_group("Поражение")
 ## Общая сцена поражения ВНЕ боя для этой локации (урон от событий и т.п.).
 ## В бою будет своя — у конкретного врага. Нужна секция ~ start; в диалог
@@ -69,6 +87,15 @@ extends Resource
 
 @export_group("Дополнительно")
 @export var min_reward_count: int = 2
+
+
+## Таблица добычи для сложности; нет своей — ближайшая более лёгкая.
+func get_loot_table(difficulty: Difficulty.Level) -> LootTable:
+	var tables := [loot_easy, loot_normal, loot_hard, loot_very_hard, loot_extreme]
+	for level in range(int(difficulty), -1, -1):
+		if tables[level] != null:
+			return tables[level]
+	return null
 
 
 ## Взвешенный случайный выбор из random_events, с двумя правилами: не

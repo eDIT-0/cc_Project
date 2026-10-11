@@ -10,7 +10,7 @@ extends Node
 ## Правила (обсуждённые):
 ##   - каждый товар — один полный стак; раскупили — пусто до перебора;
 ##   - лабиринт: ассортимент разыгрывается заново каждый забег
-##     (MerchantData.restock_each_run), хаб — постоянный (TODO: каждый день);
+##     (MerchantData.restock_each_run), хаб — заново каждый игровой день;
 ##   - покупка: в рюкзак; не влезло — в хабе доставка в квартиру, в лабиринте
 ##     нельзя (сначала освободи место);
 ##   - продажа: только из рюкзака, за sell_ratio от base_price × сюжетный
@@ -32,6 +32,7 @@ var _screen: TradeScreen
 func _ready() -> void:
 	_screen = TradeScreen.new()
 	add_child(_screen)
+	PlayerState.clock.day_changed.connect(_on_day_changed)
 
 
 # ====================== ОТКРЫТИЕ ======================
@@ -66,9 +67,18 @@ func get_stock(merchant: MerchantData) -> Array:
 
 
 ## Сбросить ассортимент — при следующем открытии разыграется заново.
-## TODO: звать для торговцев хаба при смене игрового дня.
 func restock(merchant: MerchantData) -> void:
 	_stocks.erase(merchant.get_id())
+
+
+## Новый игровой день: торговцы хаба (не restock_each_run) перебирают товар.
+## Торговцев лабиринта не трогаем — у них свой цикл, по забегам (иначе
+## ночёвка посреди забега перетасовала бы уже встреченного торговца).
+## TODO: ассортимент побольше (~10 позиций) с весом по редкости.
+func _on_day_changed(_day: int) -> void:
+	for id in _stocks.keys():
+		if not _restock_each_run_ids.has(id):
+			_stocks.erase(id)
 
 
 ## Начало забега (зовёт DungeonRun): торговцы лабиринта перебирают товар.

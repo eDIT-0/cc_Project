@@ -60,9 +60,12 @@ var money: int = 0
 var in_dungeon: bool = false
 ## Характеристики, здоровье, выносливость, возбуждение, эффекты состояния.
 var stats: CharacterStats
-## Сколько игровых минут прошло с начала игры. Пока только счётчик —
-## дни и время суток появятся позже поверх него.
-var game_minutes: int = 0
+## Игровые часы: день, день недели, время суток (см. GameClock).
+var clock: GameClock = GameClock.new()
+## Сколько игровых минут прошло с начала игры (только чтение).
+var game_minutes: int:
+	get:
+		return clock.get_elapsed_minutes()
 
 ## Скрытые параметры и сюжетные отметки (игроку не показываются).
 ## Флаги — да/нет ("met_boss"), счётчики — числа ("reputation").
@@ -80,7 +83,6 @@ func _ready() -> void:
 	backpack = Inventory.new(catalog, BACKPACK_CAPACITY)
 	stash = Inventory.new(catalog, STASH_CAPACITY)
 	stats = CharacterStats.new()
-	stats.arousal_peaked.connect(func(): print("💗 Возбуждение достигло предела и сбросилось (последствия — TODO)."))
 	stats.died.connect(func(): print("☠ Здоровье на нуле — поражение (обрабатывают DungeonRun / HubUI)."))
 
 	if OS.is_debug_build():
@@ -95,7 +97,7 @@ func _ready() -> void:
 func advance_time(minutes: int) -> void:
 	if minutes <= 0:
 		return
-	game_minutes += minutes
+	clock.advance(minutes)  # раньше эффектов: экраны по stats.changed видят уже новое время
 	stats.advance_time(minutes)
 
 
@@ -124,6 +126,14 @@ func format_minutes(minutes: int) -> String:
 	if minutes < 60:
 		return "%d мин" % minutes
 	return "%d ч %02d мин" % [minutes / 60, minutes % 60]
+
+
+## Привлекательность — ЗАГЛУШКА: потом будет считаться от одежды и т.п.
+## Пока берётся из скрытого счётчика "attractiveness" (для тестов:
+## кнопка на экране персонажа или do PlayerState.set_value("attractiveness", 10)).
+## Влияет на шанс неприятностей в хабе (HubEvent).
+func get_attractiveness() -> int:
+	return value("attractiveness")
 
 
 # ====================== ПРОВЕРКИ (короткие имена для диалогов) ======================
@@ -158,6 +168,10 @@ func set_flag(flag_name: String, enabled: bool = true) -> void:
 
 func value(value_name: String) -> int:
 	return _values.get(value_name, 0)
+
+
+func has_value(value_name: String) -> bool:
+	return _values.has(value_name)
 
 
 func set_value(value_name: String, amount: int) -> void:

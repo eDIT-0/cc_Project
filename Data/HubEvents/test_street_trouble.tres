@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="HubEvent" format=3 uid="uid://bsufqchdx331n"]
+
+[ext_resource type="Script" uid="uid://cln1ef1jcgjd2" path="res://Scripts/Hub/hub_event.gd" id="1_he"]
+[ext_resource type="Resource" uid="uid://edwa6qf0fpr4" path="res://Dialogue/hub_event_test.dialogue" id="2_dlg"]
+
+[resource]
+script = ExtResource("1_he")
+event_id = "test_street_trouble"
+title = "Тест: незнакомец в подворотне"
+dialogue = ExtResource("2_dlg")
+phases = 12
+chance_dusk = 0.25
+chance_night = 0.5
+chance_per_attractiveness = 0.01
+chance_per_drunk_stage = 0.1
+chance_per_arousal_stage = 0.05

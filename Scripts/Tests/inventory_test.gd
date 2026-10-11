@@ -248,6 +248,16 @@ func _test_transfer(catalog: ItemCatalog) -> void:
 	bp.add("ammo", 1)
 	_check(not bp.can_transfer_slot(_find_slot(bp, "ammo"), st), "стак не влезает даже частично — перенос запрещён (всё или ничего)")
 
+	var a := Inventory.new(catalog, 2)
+	var b := Inventory.new(catalog, 1)
+	a.add("ammo", 20)
+	_check(a.transfer_amount(0, b, 1) == 1 and a.count_of("ammo") == 19 and b.count_of("ammo") == 1, "переложить 1 шт. из стака")
+	_check(a.transfer_amount(0, b, 9999) == 19 and a.is_slot_empty(0) and b.count_of("ammo") == 20, "переложить всё")
+	a.add("ammo", 20)
+	_check(a.transfer_amount(0, b, 9999) == 0 and a.count_of("ammo") == 20, "некуда — ничего не переложено")
+	b.remove("ammo", 5)
+	_check(a.transfer_amount(0, b, 9999) == 5 and a.count_of("ammo") == 15, "«всё» — сколько влезло (5 из 20)")
+
 
 # ====================== УТИЛИТЫ ======================
 

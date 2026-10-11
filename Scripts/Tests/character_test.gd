@@ -117,6 +117,13 @@ func _test_arousal() -> void:
 	_check(st.get_stat("DEX") == 3 and st.get_stat("STR") == 3, "75 — DEX -3, STR -1")
 	st.add_arousal(25)
 	_check(st.arousal == 0 and peaked[0] and st.get_stat("DEX") == 6, "100 — сброс в 0, сигнал, штрафы сняты")
+	_check(st.hp == 28 and st.stamina == 70, "пик: -30% здоровья (40 -> 28) и выносливости (100 -> 70)")
+	var st2 := CharacterStats.new()
+	var died := [false]
+	st2.died.connect(func(): died[0] = true)
+	st2.damage(30)
+	st2.add_arousal(100)
+	_check(st2.hp == 0 and died[0], "пик при 10 здоровья — поражение")
 
 
 func _test_exhaustion() -> void:

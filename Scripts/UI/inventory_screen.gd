@@ -75,12 +75,15 @@ var _btn_found_to_stash: Button
 var _btn_leave: Button
 var _btn_close: Button
 var _debug_hint: Label
+var _stash_screen: StashScreen
 
 
 func _ready() -> void:
 	layer = 10
 	_build_ui()
 	_root.visible = false
+	_stash_screen = StashScreen.new()
+	add_child(_stash_screen)
 
 	if PlayerState == null or PlayerState.backpack == null:
 		push_error("InventoryScreen: PlayerState не готов — проверь порядок автозагрузок (PlayerState выше InventoryScreen).")
@@ -92,8 +95,19 @@ func _ready() -> void:
 
 # ====================== ПУБЛИЧНО ======================
 
+## true и когда открыт экран хранилища — для остальных экранов это тоже
+## "инвентарь занят".
 func is_open() -> bool:
-	return _is_open
+	return _is_open or (_stash_screen != null and _stash_screen.is_open())
+
+
+## Экран хранилища в квартире (рюкзак <-> хранилище). Корутина: в диалоге
+## обычный  do InventoryScreen.open_stash()  — диалог дождётся закрытия.
+func open_stash() -> void:
+	if _stash_screen.is_open() or _is_open:
+		return
+	_stash_screen.open()
+	await _stash_screen.closed
 
 
 func is_resolving_overflow() -> bool:
@@ -155,7 +169,7 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if not _is_open:
-		if event.keycode == KEY_I and not _is_dialogue_active():
+		if event.keycode == KEY_I and not _is_dialogue_active() and not _stash_screen.is_open():
 			get_viewport().set_input_as_handled()
 			open()
 		return

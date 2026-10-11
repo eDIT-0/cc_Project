@@ -77,7 +77,7 @@ func _refresh() -> void:
 	var st: CharacterStats = PlayerState.stats
 	var lines: PackedStringArray = []
 
-	lines.append("[b]Персонаж[/b]   ·   прошло времени: %s" % PlayerState.format_minutes(PlayerState.game_minutes))
+	lines.append("[b]Персонаж[/b]   ·   %s   ·   прошло: %s" % [PlayerState.clock.get_date_text(), PlayerState.format_minutes(PlayerState.game_minutes)])
 	lines.append("")
 	if st.level >= CharacterStats.MAX_LEVEL:
 		lines.append("Уровень: %d (максимум)" % st.level)
@@ -196,6 +196,10 @@ func _build_ui() -> void:
 		_make_button(debug_row, "Похоть +5", func(): PlayerState.stats.add_lewdness(5))
 		_make_button(debug_row, "Опыт +100", func(): PlayerState.stats.add_xp(100))
 		_make_button(debug_row, "+60 мин", func(): PlayerState.advance_time(60))
+		_make_button(debug_row, "+6 ч", func(): PlayerState.advance_time(6 * 60))
+		_make_button(debug_row, "Привлек. +5", func():
+			PlayerState.add_value("attractiveness", 5)
+			_refresh())
 		_make_button(debug_row, "Отдых (всё восстановить)", func(): PlayerState.stats.restore_all())
 
 	var hint := Label.new()

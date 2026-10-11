@@ -23,6 +23,8 @@ const HOME_LOCATION_ID := "apartment"
 var _pending_talk: NPCTalk = null
 ## Здоровье упало до 0 в хабе (не должно, страховка от багов) — ждём конца диалога.
 var _hub_defeat_pending: bool = false
+## Следующий вход на локацию — без неприятностей (возврат домой после сбоя).
+var _skip_events_once: bool = false
 
 func _ready() -> void:
 	if hub_manager == null:
@@ -32,6 +34,7 @@ func _ready() -> void:
 	hub_manager.location_changed.connect(_on_location_changed)
 	_dialogue_box.finished.connect(_on_dialogue_finished)
 	PlayerState.stats.died.connect(_on_player_died)
+	PlayerState.clock.phase_changed.connect(_on_phase_changed)
 
 	# Стартовую локацию запускаем отсюда, а не из HubManager._ready() —
 	# так гарантированно подписываемся на сигналы ДО первой эмиссии.
@@ -55,14 +58,26 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _on_location_changed(location: HubLocation) -> void:
-	_background_rect.texture = location.background
+	_background_rect.texture = location.get_background(PlayerState.clock.phase)
 	_rebuild_choices(location.choices)
-	_rebuild_npcs(location.npcs)
+	_rebuild_npcs(location.get_present_npcs())
 
 	# Если диалог с прошлой локации не был дочитан до конца — закрываем
 	# его принудительно, иначе панель "уедет" вместе с новой сценой.
 	_dialogue_box.cancel()
 	_pending_talk = null
+
+	# Неприятность при входе — вместо intro_text (её диалог сам описывает сцену).
+	var skip_events := _skip_events_once
+	_skip_events_once = false
+	var hub_event: HubEvent = null if skip_events else location.roll_event()
+	if hub_event != null:
+		if hub_event.dialogue == null:
+			push_warning("HubEvent '%s': не назначен dialogue." % hub_event.title)
+		else:
+			hub_event.mark_triggered()
+			_dialogue_box.play(hub_event.dialogue, hub_event.start_from, [{"event": hub_event, "location": location}])
+			return
 
 	# intro_text — переходный рудимент, теперь просто открывает диалог
 	# через create_resource_from_text вместо собственной логики показа.
@@ -73,6 +88,18 @@ func _on_location_changed(location: HubLocation) -> void:
 func _exit_tree() -> void:
 	if PlayerState.stats.died.is_connected(_on_player_died):
 		PlayerState.stats.died.disconnect(_on_player_died)
+	if PlayerState.clock.phase_changed.is_connected(_on_phase_changed):
+		PlayerState.clock.phase_changed.disconnect(_on_phase_changed)
+
+
+## Сменилось время суток, пока стоим на локации (сон, ожидание...):
+## другой фон и другие люди. Неприятности не бросаем — это не вход.
+func _on_phase_changed(phase: GameClock.Phase) -> void:
+	var location := hub_manager.current_location
+	if location == null:
+		return
+	_background_rect.texture = location.get_background(phase)
+	_rebuild_npcs(location.get_present_npcs())
 
 
 ## ====================== Поражение в хабе (страховка) ======================
@@ -89,6 +116,7 @@ func _on_player_died() -> void:
 func _recover_at_home() -> void:
 	push_warning("HubUI: здоровье упало до 0 в хабе — так быть не должно. Возвращаю в квартиру.")
 	PlayerState.stats.restore_to_fraction(PlayerState.DEFEAT_RESTORE_FRACTION)
+	_skip_events_once = true
 	hub_manager.go_to(HOME_LOCATION_ID)
 	_dialogue_box.play(DialogueManager.create_resource_from_text(
 		"~ start\nТы приходишь в себя у себя в квартире. Голова раскалывается."))
