@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://du0n7rub1sajq"
+path="res://.godot/imported/npc_template.dialogue-2081f183d3dfd224b735165c01ea62f3.tres"
+
+[deps]
+
+source_file="res://Dialogue/npc_template.dialogue"
+dest_files=["res://.godot/imported/npc_template.dialogue-2081f183d3dfd224b735165c01ea62f3.tres"]
+
+[params]
+
+defaults=true

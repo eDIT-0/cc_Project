@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="ItemData" format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bhahmjddccfrg"]
 
-[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="1_item"]
-[ext_resource type="Script" path="res://Scripts/Items/log_stub_effect.gd" id="2_stub"]
-[ext_resource type="Script" path="res://Scripts/Items/item_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://bepwhwmxg8aqj" path="res://Scripts/Items/item_data.gd" id="1_item"]
+[ext_resource type="Script" uid="uid://dpj155s2flb7u" path="res://Scripts/Items/log_stub_effect.gd" id="2_stub"]
+[ext_resource type="Script" uid="uid://ucdkdevjs12k" path="res://Scripts/Items/item_effect.gd" id="3_effect"]
 
 [sub_resource type="Resource" id="Resource_e1"]
 script = ExtResource("2_stub")
@@ -15,5 +15,5 @@ display_name = "Коктейль Молотова"
 description = "Бутылка с горючей смесью и тряпкой в горлышке."
 max_stack = 3
 usable_in_combat = true
-base_price = 60
 effects = Array[ExtResource("3_effect")]([SubResource("Resource_e1")])
+base_price = 60

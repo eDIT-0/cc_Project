@@ -16,12 +16,16 @@ extends Control
 @onready var _npc_container: VBoxContainer = %NpcContainer
 @onready var _dialogue_box: DialogueBox = %DialogueBox
 
+## Текущий разговор с NPC (TALK_FIRST) — ждём его конца, чтобы открыть квест.
+var _pending_talk: NPCTalk = null
+
 func _ready() -> void:
 	if hub_manager == null:
 		push_error("HubUI: поле Hub Manager не назначено в инспекторе!")
 		return
 
 	hub_manager.location_changed.connect(_on_location_changed)
+	_dialogue_box.finished.connect(_on_dialogue_finished)
 
 	# Стартовую локацию запускаем отсюда, а не из HubManager._ready() —
 	# так гарантированно подписываемся на сигналы ДО первой эмиссии.
@@ -52,6 +56,7 @@ func _on_location_changed(location: HubLocation) -> void:
 	# Если диалог с прошлой локации не был дочитан до конца — закрываем
 	# его принудительно, иначе панель "уедет" вместе с новой сценой.
 	_dialogue_box.cancel()
+	_pending_talk = null
 
 	# intro_text — переходный рудимент, теперь просто открывает диалог
 	# через create_resource_from_text вместо собственной логики показа.
@@ -99,10 +104,36 @@ func _rebuild_npcs(npcs: Array[NPCData]) -> void:
 
 
 func _on_npc_pressed(npc: NPCData) -> void:
-	if npc.offered_quest != null:
-		_start_side_quest_offer(npc.offered_quest, npc.display_name)
+	_pending_talk = null
+	var quest := npc.offered_quest
+	var relevant := quest != null and _is_quest_relevant(quest)
+
+	if relevant and (npc.dialogue == null or npc.quest_mode == NPCData.QuestMode.QUEST_FIRST):
+		_start_side_quest_offer(quest, npc.display_name)
+	elif npc.dialogue != null:
+		var talk := NPCTalk.new(npc, relevant)
+		_pending_talk = talk
+		_dialogue_box.play(npc.dialogue, npc.start_cue, [{"npc": npc, "merchant": npc.merchant, "talk": talk}])
+	elif quest != null:
+		_start_side_quest_offer(quest, npc.display_name)  # общие заглушки "закрыто / сдано"
 	else:
-		_dialogue_box.play(DialogueManager.create_resource_from_text("~ start\n%s: ..." % npc.display_name))
+		_say_generic(npc.display_name, "...")
+
+
+## Разговор с NPC дочитан: если игрок выбрал пункт про задание
+## (talk.ask_about_quest()) — открываем квестовый диалог.
+func _on_dialogue_finished() -> void:
+	var talk := _pending_talk
+	_pending_talk = null
+	if talk != null and talk.quest_requested:
+		_start_side_quest_offer(talk.quest, talk.npc.display_name)
+
+
+## Квест сейчас "про что поговорить": уже открыт и ещё не сдан. Иначе NPC
+## с собственным dialogue просто разговаривает о своём.
+func _is_quest_relevant(quest: SideQuestEvent) -> bool:
+	return QuestManager.are_prerequisites_completed(quest.prerequisite_quest_ids) \
+		and not QuestManager.is_side_quest_rewarded(quest.quest_id)
 
 
 ## Открывает диалог с NPC-квестодателем. Сам текст — в собственном

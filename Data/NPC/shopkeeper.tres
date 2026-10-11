@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="NPCData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Hub/npc_data.gd" id="1_npc"]
+[ext_resource type="Resource" path="res://Dialogue/shopkeeper.dialogue" id="2_dlg"]
+[ext_resource type="Resource" path="res://Data/Merchants/shop_merchant.tres" id="3_merchant"]
+
+[resource]
+script = ExtResource("1_npc")
+npc_id = "shopkeeper"
+display_name = "Продавец"
+dialogue = ExtResource("2_dlg")
+merchant = ExtResource("3_merchant")

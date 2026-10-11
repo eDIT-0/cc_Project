@@ -1,10 +1,26 @@
 [gd_resource type="Resource" script_class="MerchantData" format=3]
 
 [ext_resource type="Script" path="res://Scripts/Dungeon/merchant_data.gd" id="1_md"]
-[ext_resource type="Resource" path="res://Dialogue/merchant_wanderer.dialogue" id="2_mdlg"]
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="2_item"]
+[ext_resource type="Resource" path="res://Dialogue/merchant_wanderer.dialogue" id="3_dlg"]
+[ext_resource type="Resource" path="res://Data/Items/homemade_injector.tres" id="i_homemade_injector"]
+[ext_resource type="Resource" path="res://Data/Items/moonshine.tres" id="i_moonshine"]
+[ext_resource type="Resource" path="res://Data/Items/knife_homemade.tres" id="i_knife_homemade"]
+[ext_resource type="Resource" path="res://Data/Items/molotov.tres" id="i_molotov"]
+[ext_resource type="Resource" path="res://Data/Items/gunpowder.tres" id="i_gunpowder"]
+[ext_resource type="Resource" path="res://Data/Items/metal_parts_small.tres" id="i_metal_parts_small"]
+[ext_resource type="Resource" path="res://Data/Items/metal_parts_large.tres" id="i_metal_parts_large"]
+[ext_resource type="Resource" path="res://Data/Items/ammo_45.tres" id="i_ammo_45"]
+[ext_resource type="Resource" path="res://Data/Items/ammo_heavy.tres" id="i_ammo_heavy"]
+[ext_resource type="Resource" path="res://Data/Items/cloth.tres" id="i_cloth"]
 
 [resource]
 script = ExtResource("1_md")
+merchant_id = "wanderer"
 title = "Странствующий торговец"
-weight = 30
-dialogue = ExtResource("2_mdlg")
+display_name = "Странствующий торговец"
+dialogue = ExtResource("3_dlg")
+stock_pool = Array[ExtResource("2_item")]([ExtResource("i_homemade_injector"), ExtResource("i_moonshine"), ExtResource("i_knife_homemade"), ExtResource("i_molotov"), ExtResource("i_gunpowder"), ExtResource("i_metal_parts_small"), ExtResource("i_metal_parts_large"), ExtResource("i_ammo_45"), ExtResource("i_ammo_heavy"), ExtResource("i_cloth")])
+offers_count = 4
+restock_each_run = true
+price_multiplier = 1.5

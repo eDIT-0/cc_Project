@@ -1,0 +1,19 @@
+# Шаблон обычного разговора с NPC (NPCData.dialogue). Скопируй и переименуй.
+# Доступно: npc, merchant (если NPC торгует), talk (NPCTalk).
+# Пункты про задание видны, только когда у NPC есть актуальный квест
+# (quest_mode = TALK_FIRST). Сам квестовый диалог откроется после "=> END".
+
+~ start
+{{npc.display_name}}: [TODO: приветствие]
+- Как дела? => smalltalk
+- Насчёт задания... [if talk.has_quest_topic() and not talk.can_turn_in_quest() /] => quest
+- Я сделал, что ты просил. [if talk.can_turn_in_quest() /] => quest
+- Пока => END
+
+~ smalltalk
+{{npc.display_name}}: [TODO: болтовня]
+=> start
+
+~ quest
+do talk.ask_about_quest()
+=> END

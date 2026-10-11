@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MerchantData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Dungeon/merchant_data.gd" id="1_md"]
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="2_item"]
+[ext_resource type="Resource" path="res://Data/Items/injector.tres" id="i_injector"]
+[ext_resource type="Resource" path="res://Data/Items/energy_drink.tres" id="i_energy_drink"]
+[ext_resource type="Resource" path="res://Data/Items/beer.tres" id="i_beer"]
+[ext_resource type="Resource" path="res://Data/Items/knife_kitchen.tres" id="i_knife_kitchen"]
+[ext_resource type="Resource" path="res://Data/Items/pepper_spray.tres" id="i_pepper_spray"]
+[ext_resource type="Resource" path="res://Data/Items/herb_green.tres" id="i_herb_green"]
+[ext_resource type="Resource" path="res://Data/Items/cloth.tres" id="i_cloth"]
+[ext_resource type="Resource" path="res://Data/Items/metal_parts_small.tres" id="i_metal_parts_small"]
+
+[resource]
+script = ExtResource("1_md")
+merchant_id = "shop"
+title = "Магазин"
+display_name = "Магазин"
+stock_pool = Array[ExtResource("2_item")]([ExtResource("i_injector"), ExtResource("i_energy_drink"), ExtResource("i_beer"), ExtResource("i_knife_kitchen"), ExtResource("i_pepper_spray"), ExtResource("i_herb_green"), ExtResource("i_cloth"), ExtResource("i_metal_parts_small")])

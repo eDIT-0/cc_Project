@@ -153,6 +153,7 @@ func _on_dungeon_generated() -> void:
 	_current_merchant = null
 	_is_running = true
 	PlayerState.in_dungeon = true
+	TradeManager.on_run_started()  # торговцы лабиринта перебирают товар
 	run_started.emit()
 
 

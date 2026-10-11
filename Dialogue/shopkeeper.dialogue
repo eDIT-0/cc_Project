@@ -1,0 +1,15 @@
+~ start
+Продавец: Добро пожаловать. Что-нибудь присмотрел?
+- Показать товар => trade
+- Насчёт задания... [if talk.has_quest_topic() and not talk.can_turn_in_quest() /] => quest
+- Я сделал, что ты просил. [if talk.can_turn_in_quest() /] => quest
+- Просто смотрю => END
+
+~ trade
+do TradeManager.open(merchant)
+Продавец: Заходи ещё.
+=> END
+
+~ quest
+do talk.ask_about_quest()
+=> END

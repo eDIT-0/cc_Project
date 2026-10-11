@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://bfyme50njo4w7"
+path="res://.godot/imported/npc_test_beforequest.dialogue-15d8b1dfdff3fc88a7208f77abb0defc.tres"
+
+[deps]
+
+source_file="res://Dialogue/npc_test_beforequest.dialogue"
+dest_files=["res://.godot/imported/npc_test_beforequest.dialogue-15d8b1dfdff3fc88a7208f77abb0defc.tres"]
+
+[params]
+
+defaults=true

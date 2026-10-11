@@ -87,6 +87,12 @@ func has_item(item_id: String, amount: int = 1) -> bool:
 	return count_of(item_id) >= amount
 
 
+## Сколько штук предмета ещё влезет (докладывая в стаки и в пустые ячейки).
+func space_for(item_id: String) -> int:
+	var item := catalog.get_item(item_id)
+	return 0 if item == null else _space_for(item)
+
+
 ## Поместится ли amount штук целиком (без фактического добавления).
 func can_add(item_id: String, amount: int = 1) -> bool:
 	var item := catalog.get_item(item_id)
