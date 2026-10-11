@@ -31,11 +31,12 @@ signal dialogue_requested(resource: Resource, cue: String, extra_game_states: Ar
 
 @export var generator: DungeonGenerator
 
-## Заглушка проверки навыка для ивента "дыра в стене" — настоящего
-## навыка/статов ещё нет, см. _on_random_event_tile(). Шанс УСПЕХА
-## попытки протиснуться, а не шанс того, что сам ивент выпадет из пула
-## (тот — обычный RandomEvent.weight, как у всех остальных).
-@export_range(0.0, 1.0) var wall_hole_success_chance: float = 0.5
+## Сложность проверки ЛОВКОСТИ для ивента "дыра в стене" (см.
+## CharacterStats.get_check_chance: DEX == сложности -> 50%). Сам бросок —
+## в wall_hole.dialogue (PlayerState.check), сюда передаётся как "difficulty".
+@export_range(0, 20) var wall_hole_difficulty: int = 6
+## Урон, если застрял.
+@export_range(0, 100) var wall_hole_fail_damage: int = 5
 
 var _player_tile: Vector2i
 var _is_running: bool = false
@@ -100,6 +101,7 @@ func try_move(direction: DungeonTypes.Direction) -> bool:
 		return false
 
 	_player_tile = generator.get_neighbor_tile(_player_tile, direction)
+	PlayerState.on_maze_step()  # -выносливость, +10 игровых минут
 	var tile := generator.get_tile(_player_tile)
 	var event_type := tile.event_type if tile else DungeonTypes.EventType.EMPTY
 
@@ -137,6 +139,7 @@ func try_move(direction: DungeonTypes.Direction) -> bool:
 ## продвинулся он или нет).
 func apply_wall_hole_success() -> void:
 	_player_tile = _wall_hole_target
+	PlayerState.on_maze_step()  # протиснуться — тоже шаг
 	generator.mark_as_visited(_player_tile)
 	generator.consume_event(_player_tile)
 	player_moved.emit(_player_tile)
@@ -172,15 +175,17 @@ func _on_main_quest_tile(tile: DungeonTile) -> void:
 	# получал пустой quest_id.
 	var quest_id: String
 	var quest_name: String
+	var xp_reward := 0
 	if tile.main_quest_data:
 		quest_id = tile.main_quest_data.quest_id
 		quest_name = tile.main_quest_data.quest_name
+		xp_reward = tile.main_quest_data.xp_reward
 	else:
 		push_warning("У локации '%s' не назначен MainQuestEvent — использую location_id как запасной quest_id." % generator.location_data.location_name)
 		quest_id = generator.location_data.location_id
 		quest_name = generator.location_data.location_name
 
-	QuestManager.complete_main_quest(quest_id, quest_name)
+	QuestManager.complete_main_quest(quest_id, quest_name, xp_reward)
 	_start_return_choice("Основной квест выполнен. Вернуться в хаб?")
 
 
@@ -253,7 +258,7 @@ func _on_random_event_tile() -> void:
 		# Бросок — ДО открытия диалога, не внутри него: условия в .dialogue
 		# резолвятся только против переданных extra_game_states/автозагрузок
 		# по имени, глобальные функции (тот же randf()) им не видны.
-		extra_states = [{"success": randf() < wall_hole_success_chance, "run": self}]
+		extra_states = [{"difficulty": wall_hole_difficulty, "fail_damage": wall_hole_fail_damage, "run": self}]
 
 	dialogue_requested.emit(chosen.dialogue, "start", extra_states)
 

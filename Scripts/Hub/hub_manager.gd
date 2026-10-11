@@ -33,5 +33,9 @@ func go_to(location_id: String) -> void:
 		push_error("HubManager: локация '%s' не найдена среди назначенных locations!" % location_id)
 		return
 
+	# Первый go_to() — это вход в хаб (старт игры / возврат из лабиринта),
+	# а не переход, время не тратится.
+	if current_location != null:
+		PlayerState.on_hub_move()
 	current_location = _locations_by_id[location_id]
 	location_changed.emit(current_location)

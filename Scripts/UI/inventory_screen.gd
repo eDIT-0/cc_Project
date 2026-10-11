@@ -250,7 +250,7 @@ func _on_use_pressed() -> void:
 		if inv.is_slot_empty(_selected):
 			_selected = -1
 	else:
-		_status.text = "Сейчас это не использовать."
+		_status.text = "Не подействовало (сейчас нельзя или не нужно — например, здоровье полное)."
 	_after_action()
 
 

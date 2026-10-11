@@ -1,12 +1,12 @@
-[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://c34gl0m8b0ddl"]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://b0q28fo81f8bl"]
 
 [ext_resource type="Script" uid="uid://bepwhwmxg8aqj" path="res://Scripts/Items/item_data.gd" id="1_item"]
-[ext_resource type="Script" uid="uid://dpj155s2flb7u" path="res://Scripts/Items/log_stub_effect.gd" id="2_stub"]
 [ext_resource type="Script" uid="uid://ucdkdevjs12k" path="res://Scripts/Items/item_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://be6pikmwknfyb" path="res://Scripts/Items/heal_effect.gd" id="4_heal"]
 
 [sub_resource type="Resource" id="Resource_e1"]
-script = ExtResource("2_stub")
-message = "восстановление здоровья (заглушка — здоровья ещё нет)"
+script = ExtResource("4_heal")
+amount = 25
 
 [resource]
 script = ExtResource("1_item")

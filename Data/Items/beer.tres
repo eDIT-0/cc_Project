@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bpu8wj6qxjubv"]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://brhkv3pknpv8h"]
 
 [ext_resource type="Script" uid="uid://bepwhwmxg8aqj" path="res://Scripts/Items/item_data.gd" id="1_item"]
-[ext_resource type="Script" uid="uid://dpj155s2flb7u" path="res://Scripts/Items/log_stub_effect.gd" id="2_stub"]
 [ext_resource type="Script" uid="uid://ucdkdevjs12k" path="res://Scripts/Items/item_effect.gd" id="3_effect"]
+[ext_resource type="Script" uid="uid://cj7twhgvh5w77" path="res://Scripts/Items/apply_status_effect.gd" id="6_status"]
+[ext_resource type="Resource" path="res://Data/Status/drunk_1.tres" id="s_drunk_1"]
 
 [sub_resource type="Resource" id="Resource_e1"]
-script = ExtResource("2_stub")
-message = "бафф/дебафф (заглушка — параметров персонажа ещё нет)"
+script = ExtResource("6_status")
+effect = ExtResource("s_drunk_1")
+stack_stages = 1
 
 [resource]
 script = ExtResource("1_item")

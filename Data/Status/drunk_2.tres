@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="StatusEffect" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Character/status_effect.gd" id="1_se"]
+[ext_resource type="Resource" path="res://Data/Status/drunk_3.tres" id="2_next"]
+
+[resource]
+script = ExtResource("1_se")
+effect_id = "drunk_2"
+display_name = "Опьянение: среднее"
+description = "Язык развязался, ноги слушаются хуже."
+str_mod = 2
+cha_mod = 1
+dex_mod = -2
+int_mod = -2
+lew_mod = 10
+duration_minutes = 120
+group = "drunk"
+stage = 2
+next_stage = ExtResource("2_next")

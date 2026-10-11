@@ -22,6 +22,7 @@ DialogueManager="*uid://c3rodes2l3gxb"
 PlayerState="*uid://ejuo3t6hssfd"
 InventoryScreen="*uid://tu2fcxmykm5"
 TradeManager="*uid://d30i6usdahgy4"
+CharacterScreen="*uid://hni37xwl3yee"
 
 [display]
 
@@ -34,7 +35,7 @@ enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg")
 
 [internationalization]
 
-locale/translations_pot_files=PackedStringArray("res://Dialogue/found_wallet.dialogue", "res://Dialogue/npc_encounter_good.dialogue", "res://Dialogue/npc_encounter_bad.dialogue", "res://Dialogue/wall_hole.dialogue", "res://Dialogue/quest_010.dialogue", "res://Dialogue/quest_111.dialogue", "res://Dialogue/merchant_wanderer.dialogue", "res://Dialogue/KeyGiverNPC.dialogue", "res://Dialogue/shopkeeper.dialogue", "res://Dialogue/npc_template.dialogue", "res://Dialogue/npc_test_beforequest.dialogue")
+locale/translations_pot_files=PackedStringArray("res://Dialogue/found_wallet.dialogue", "res://Dialogue/npc_encounter_good.dialogue", "res://Dialogue/npc_encounter_bad.dialogue", "res://Dialogue/wall_hole.dialogue", "res://Dialogue/quest_010.dialogue", "res://Dialogue/quest_111.dialogue", "res://Dialogue/merchant_wanderer.dialogue", "res://Dialogue/KeyGiverNPC.dialogue", "res://Dialogue/shopkeeper.dialogue", "res://Dialogue/npc_template.dialogue", "res://Dialogue/npc_test_beforequest.dialogue", "res://Dialogue/bed.dialogue")
 
 [physics]
 

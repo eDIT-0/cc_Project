@@ -6,6 +6,9 @@ extends Resource
 @export var quest_name: String = ""     # для журнала завершённых квестов и будущего UI
 @export var location_id: String = ""    # к какой локации привязан
 @export var difficulty: Difficulty.Level = Difficulty.Level.NORMAL
+## Опыт за сдачу (QuestManager.grant_side_quest_reward). Ориентир по
+## сложности: 30 / 50 / 80 / 120 / 180 (см. CharacterStats).
+@export_range(0, 10000) var xp_reward: int = 50
 
 @export_group("Нарратив")
 ## Собственный .dialogue-файл этого квеста — у каждого квеста свой, а не

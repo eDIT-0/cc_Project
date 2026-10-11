@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="StatusEffect" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Character/status_effect.gd" id="1_se"]
+
+[resource]
+script = ExtResource("1_se")
+effect_id = "arousal_2"
+display_name = "Возбуждение: сильное"
+description = "Мысли путаются, движения неточные."
+dex_mod = -2
+int_mod = -2
+duration_minutes = 0
+group = "arousal"
+stage = 2

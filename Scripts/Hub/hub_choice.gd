@@ -2,9 +2,10 @@ class_name HubChoice
 extends Resource
 ## Один пункт выбора в диалоговом окне хаба (см. макет: "1. Dialouge or choice option")
 ##
-## Только навигация по хабу: два взаимоисключающих варианта того, что
-## делает выбор — обычный переход (target_location_id) или вход в опасную
-## зону (enters_dangerous_zone + dungeon_location). Выдача сайд-квестов
+## Три взаимоисключающих варианта того, что делает выбор (проверяются в
+## этом порядке): действие-диалог с предметом обстановки (action_dialogue —
+## кровать, терминал и т.п.), вход в опасную зону (enters_dangerous_zone +
+## dungeon_location) или обычный переход (target_location_id). Выдача сайд-квестов
 ## сюда НЕ входит — это отдельная система, завязанная на NPCData/NPC в
 ## хабе (см. Scripts/Hub/npc_data.gd), а не на пункты навигационного меню.
 ##
@@ -13,6 +14,13 @@ extends Resource
 ## dungeon_difficulty на конкретных "боевых" точках входа станет не нужен.
 
 @export var label: String = "Вариант"
+
+@export_group("Действие (диалог)")
+## Взаимодействие с обстановкой без перехода: открыть этот диалог.
+## (Не NPC — люди живут в NPCData.) Пример: кровать -> bed.dialogue.
+@export var action_dialogue: DialogueResource
+## С какой секции начать. НЕ называть "*dialogue_cue*" — см. npc_data.gd.
+@export var action_start: String = "start"
 
 @export_group("Обычный переход по хабу")
 @export var target_location_id: String = ""

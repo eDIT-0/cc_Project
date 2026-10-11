@@ -1,15 +1,16 @@
 ~ start
 В стене заметна трещина — судя по всему, кусок старой кладки давно осыпался, и за ним угадывается пустота.
 Протиснуться можно. Вот только куда она ведёт — неизвестно, а обратно этим же путём точно не вернуться.
-- Попробовать протиснуться => attempt
+- Попробовать протиснуться [if not PlayerState.is_hopeless("DEX", difficulty) /] => attempt
+- Попробовать протиснуться (слишком узко — в таком состоянии почти без шансов) [if PlayerState.is_hopeless("DEX", difficulty) /] => attempt
 - Пойти дальше => END
 
 ~ attempt
-if success
+if PlayerState.check("DEX", difficulty)
 	С трудом, ободрав бока о камень, тебе удаётся протиснуться на ту сторону.
-	$> run.apply_wall_hole_success()
+	do run.apply_wall_hole_success()
 	=> END
 else
 	Протиснуться не выходит — ты застреваешь и, вырываясь, набиваешь порядочно синяков.
-	$> GameManager.log_stub("Застрял в дыре в стене — получен урон (заглушка, здоровья ещё нет).")
+	do PlayerState.stats.damage(fail_damage)
 	=> END

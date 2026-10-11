@@ -1,7 +1,7 @@
 extends Node
 ## Автозагружаемый синглтон (Project Settings -> Autoload -> имя "PlayerState").
 ## Всё, что персонаж носит и копит МЕЖДУ сценами: рюкзак, хранилище в
-## квартире, деньги. Позже сюда же лягут здоровье и прочие параметры.
+## квартире, деньги, состояние персонажа (stats) и игровое время.
 ##
 ## Функции ниже рассчитаны в том числе на вызов из .dialogue-файлов:
 ##   - Поддеть ломом [if PlayerState.has_item("crowbar")] => pry
@@ -33,6 +33,14 @@ const DEBUG_START_ITEMS := {
 }
 const DEBUG_START_MONEY := 100
 
+## Игровое время за действия (в минутах). Бой времени не тратит.
+const MAZE_STEP_MINUTES := 10
+const HUB_MOVE_MINUTES := 5
+## Выносливость за шаг по клетке лабиринта (по хабу ходить бесплатно).
+const MAZE_STEP_STAMINA := 2
+## Сон в кровати: сколько длится и что даёт (полное здоровье и выносливость).
+const SLEEP_MINUTES := 8 * 60
+
 ## Доля денег, теряемая при смерти (0.1 = 10%). Инвентарь и так отбирается,
 ## поэтому деньги — лишь частично.
 const DEATH_MONEY_LOSS := 0.1
@@ -45,6 +53,17 @@ var money: int = 0
 ## старте забега и снимает при выходе со сцены лабиринта. Влияет на экран
 ## переполнения: только в хабе можно отправлять вещи в квартиру.
 var in_dungeon: bool = false
+## Характеристики, здоровье, выносливость, возбуждение, эффекты состояния.
+var stats: CharacterStats
+## Сколько игровых минут прошло с начала игры. Пока только счётчик —
+## дни и время суток появятся позже поверх него.
+var game_minutes: int = 0
+
+## Скрытые параметры и сюжетные отметки (игроку не показываются).
+## Флаги — да/нет ("met_boss"), счётчики — числа ("reputation").
+## Пока без сохранений — живут до перезапуска.
+var _flags: Dictionary = {}
+var _values: Dictionary = {}
 
 
 func _ready() -> void:
@@ -55,11 +74,104 @@ func _ready() -> void:
 
 	backpack = Inventory.new(catalog, BACKPACK_CAPACITY)
 	stash = Inventory.new(catalog, STASH_CAPACITY)
+	stats = CharacterStats.new()
+	stats.arousal_peaked.connect(func(): print("💗 Возбуждение достигло предела и сбросилось (последствия — TODO)."))
+	stats.died.connect(func(): print("☠ Здоровье на нуле (обработка смерти — TODO, вместе с боем)."))
 
 	if OS.is_debug_build():
 		for item_id in DEBUG_START_ITEMS:
 			backpack.add(item_id, DEBUG_START_ITEMS[item_id])  # без экрана переполнения
 		money = DEBUG_START_MONEY
+
+
+# ====================== ВРЕМЯ И ДЕЙСТВИЯ ======================
+
+## Прошло игровое время: тикают эффекты состояния.
+func advance_time(minutes: int) -> void:
+	if minutes <= 0:
+		return
+	game_minutes += minutes
+	stats.advance_time(minutes)
+
+
+## Шаг по клетке лабиринта (зовёт DungeonRun).
+func on_maze_step() -> void:
+	stats.spend_stamina(MAZE_STEP_STAMINA)
+	advance_time(MAZE_STEP_MINUTES)
+
+
+## Переход между локациями хаба (зовёт HubManager).
+func on_hub_move() -> void:
+	advance_time(HUB_MOVE_MINUTES)
+
+
+## Сон (кровать в квартире): проходит SLEEP_MINUTES — эффекты тикают
+## (опьянение выветривается), затем полностью восстанавливаются здоровье и
+## выносливость. Из диалога: do PlayerState.sleep()
+func sleep() -> void:
+	advance_time(SLEEP_MINUTES)
+	stats.restore_all()
+	print("🛏 Сон: %s. Здоровье и выносливость восстановлены." % format_minutes(SLEEP_MINUTES))
+
+
+## "3 ч 20 мин" — для отладочных экранов.
+func format_minutes(minutes: int) -> String:
+	if minutes < 60:
+		return "%d мин" % minutes
+	return "%d ч %02d мин" % [minutes / 60, minutes % 60]
+
+
+# ====================== ПРОВЕРКИ (короткие имена для диалогов) ======================
+
+## Бросок проверки характеристики:  if PlayerState.check("DEX", 6)
+func check(stat: String, difficulty: int) -> bool:
+	return stats.roll_check(stat, difficulty)
+
+
+## Шансов почти нет — предупредить игрока:  [if PlayerState.is_hopeless("DEX", 6) /]
+func is_hopeless(stat: String, difficulty: int) -> bool:
+	return stats.is_check_hopeless(stat, difficulty)
+
+
+# ====================== ФЛАГИ И СЧЁТЧИКИ ======================
+## В диалогах:
+##   if PlayerState.flag("met_boss")
+##   do PlayerState.set_flag("met_boss")
+##   if PlayerState.value("reputation") >= 10
+##   do PlayerState.add_value("reputation", 2)
+
+func flag(flag_name: String) -> bool:
+	return _flags.get(flag_name, false)
+
+
+func set_flag(flag_name: String, enabled: bool = true) -> void:
+	if enabled:
+		_flags[flag_name] = true
+	else:
+		_flags.erase(flag_name)
+
+
+func value(value_name: String) -> int:
+	return _values.get(value_name, 0)
+
+
+func set_value(value_name: String, amount: int) -> void:
+	_values[value_name] = amount
+
+
+## Возвращает новое значение.
+func add_value(value_name: String, amount: int) -> int:
+	_values[value_name] = value(value_name) + amount
+	return _values[value_name]
+
+
+## Для отладочного экрана.
+func get_debug_flags() -> Dictionary:
+	return _flags.duplicate()
+
+
+func get_debug_values() -> Dictionary:
+	return _values.duplicate()
 
 
 # ====================== ПРЕДМЕТЫ (для кода и диалогов) ======================

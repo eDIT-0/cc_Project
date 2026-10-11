@@ -8,6 +8,7 @@
 ~ trade
 do TradeManager.open(merchant)
 Продавец: Заходи ещё.
+do PlayerState.set_flag("test")
 => END
 
 ~ quest

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="StatusEffect" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Character/status_effect.gd" id="1_se"]
+
+[resource]
+script = ExtResource("1_se")
+effect_id = "arousal_3"
+display_name = "Возбуждение: на пределе"
+description = "Думать о чём-то другом почти невозможно."
+dex_mod = -3
+int_mod = -3
+str_mod = -1
+duration_minutes = 0
+group = "arousal"
+stage = 3

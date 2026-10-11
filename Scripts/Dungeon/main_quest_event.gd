@@ -11,6 +11,8 @@ extends Resource
 @export_group("Основная информация")
 @export var quest_id: String = ""
 @export var quest_name: String = ""
+## Опыт за ПЕРВОЕ прохождение (повторные забеги опыта не дают).
+@export_range(0, 10000) var xp_reward: int = 100
 
 @export_group("Нарратив")
 @export_multiline var description: String = ""

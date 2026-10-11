@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StatusEffect" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Character/status_effect.gd" id="1_se"]
+
+[resource]
+script = ExtResource("1_se")
+effect_id = "drunk_3"
+display_name = "Опьянение: сильное"
+description = "Мир плывёт. Зато море по колено."
+str_mod = 3
+cha_mod = 2
+dex_mod = -3
+int_mod = -3
+lew_mod = 15
+duration_minutes = 180
+group = "drunk"
+stage = 3

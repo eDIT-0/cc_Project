@@ -119,9 +119,14 @@ func get_active_side_quest_ids() -> Array[String]:
 ## Отмечает основной квест текущего забега пройденным (вызывается при
 ## заходе на тайл EventType.QUEST в лабиринте). quest_id/quest_name приходят
 ## из MainQuestEvent, назначенного на LocationData — см. DungeonRun.
-func complete_main_quest(quest_id: String, quest_name: String) -> void:
+## xp_reward выдаётся только за ПЕРВОЕ прохождение (по журналу) — иначе
+## опыт фармился бы повторными забегами в ту же локацию.
+func complete_main_quest(quest_id: String, quest_name: String, xp_reward: int = 0) -> void:
 	_main_quest_completed = true
+	var first_time := not is_quest_completed(quest_id)
 	_log_quest_completed(quest_id, quest_name)
+	if first_time:
+		PlayerState.stats.add_xp(xp_reward)
 	print("Основной квест завершён: %s" % quest_id)
 
 func is_main_quest_completed() -> bool:
@@ -174,8 +179,11 @@ func are_prerequisites_completed(quest_ids: Array) -> bool:
 func grant_side_quest_reward(quest: SideQuestEvent) -> void:
 	if quest == null:
 		return
+	if _rewarded_side_quests.has(quest.quest_id):
+		return  # дважды не награждаем
 	_rewarded_side_quests[quest.quest_id] = true
-	print("Награда выдана (заглушка): %s" % quest.quest_id)
+	PlayerState.stats.add_xp(quest.xp_reward)
+	print("Награда за квест: %s (+%d опыта; предметы/деньги — позже)" % [quest.quest_id, quest.xp_reward])
 
 func is_side_quest_rewarded(quest_id: String) -> bool:
 	return _rewarded_side_quests.has(quest_id)

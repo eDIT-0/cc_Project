@@ -80,7 +80,9 @@ func _rebuild_choices(choices: Array[HubChoice]) -> void:
 
 
 func _on_choice_pressed(choice: HubChoice) -> void:
-	if choice.enters_dangerous_zone:
+	if choice.action_dialogue != null:
+		_dialogue_box.play(choice.action_dialogue, choice.action_start)
+	elif choice.enters_dangerous_zone:
 		if choice.dungeon_location == null:
 			push_error("HubChoice '%s': enters_dangerous_zone включён, но dungeon_location пуст!" % choice.label)
 			return

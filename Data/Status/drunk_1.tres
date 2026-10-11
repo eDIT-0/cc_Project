@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StatusEffect" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Character/status_effect.gd" id="1_se"]
+[ext_resource type="Resource" path="res://Data/Status/drunk_2.tres" id="2_next"]
+
+[resource]
+script = ExtResource("1_se")
+effect_id = "drunk_1"
+display_name = "Опьянение: слабое"
+description = "Лёгкий хмель. Смелее, но не точнее."
+str_mod = 1
+cha_mod = 1
+dex_mod = -1
+int_mod = -1
+lew_mod = 5
+group = "drunk"
+next_stage = ExtResource("2_next")
