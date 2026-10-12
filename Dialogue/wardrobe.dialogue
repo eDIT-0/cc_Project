@@ -1,8 +1,0 @@
-~ start
-Старый шкаф. Сюда помещается всё, что не влезает в рюкзак.
-- Открыть => open
-- Не сейчас => END
-
-~ open
-do InventoryScreen.open_stash()
-=> END

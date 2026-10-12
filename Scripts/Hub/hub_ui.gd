@@ -54,7 +54,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if index < 0 or index >= _choices_container.get_child_count():
 		return
 
-	(_choices_container.get_child(index) as Button).pressed.emit()
+	var button := _choices_container.get_child(index) as Button
+	if not button.disabled:  # pressed.emit() сработал бы и на неактивной кнопке
+		button.pressed.emit()
 
 
 func _on_location_changed(location: HubLocation) -> void:
@@ -99,6 +101,7 @@ func _on_phase_changed(phase: GameClock.Phase) -> void:
 	if location == null:
 		return
 	_background_rect.texture = location.get_background(phase)
+	_rebuild_choices(location.choices)  # что-то могло открыться / закрыться
 	_rebuild_npcs(location.get_present_npcs())
 
 
@@ -133,12 +136,29 @@ func _rebuild_choices(choices: Array[HubChoice]) -> void:
 		var button := Button.new()
 		button.focus_mode = Control.FOCUS_NONE  # см. комментарий в dialogue_box.gd — та же причина
 		button.text = "%d. %s" % [i + 1, choice.label]
+		var target := _get_closed_target(choice)
+		if target != null:
+			button.text += "  [%s]" % target.closed_text
+			button.disabled = true
 		button.pressed.connect(_on_choice_pressed.bind(choice))
 		_choices_container.add_child(button)
 
 
+## Пункт ведёт на локацию хаба, которая сейчас закрыта — вернёт её, иначе null.
+func _get_closed_target(choice: HubChoice) -> HubLocation:
+	if choice.action_screen != HubChoice.ScreenAction.NONE or choice.action_dialogue != null \
+			or choice.enters_dangerous_zone or choice.target_location_id.is_empty():
+		return null
+	var target := hub_manager.get_location(choice.target_location_id)
+	return target if target != null and not target.is_open() else null
+
+
 func _on_choice_pressed(choice: HubChoice) -> void:
-	if choice.action_dialogue != null:
+	if _get_closed_target(choice) != null:
+		return  # на всякий случай: кнопка и так неактивна
+	if choice.action_screen != HubChoice.ScreenAction.NONE:
+		_open_screen(choice.action_screen)
+	elif choice.action_dialogue != null:
 		_dialogue_box.play(choice.action_dialogue, choice.action_start)
 	elif choice.enters_dangerous_zone:
 		if choice.dungeon_location == null:
@@ -147,6 +167,15 @@ func _on_choice_pressed(choice: HubChoice) -> void:
 		GameManager.enter_dungeon(choice.dungeon_location, choice.dungeon_difficulty)
 	else:
 		hub_manager.go_to(choice.target_location_id)
+
+
+## Экран вместо диалога (шкаф). Описание локации, если ещё на экране, закрываем.
+func _open_screen(screen: HubChoice.ScreenAction) -> void:
+	match screen:
+		HubChoice.ScreenAction.STASH:
+			_dialogue_box.cancel()
+			_pending_talk = null
+			InventoryScreen.open_stash()
 
 
 ## ====================== NPC (отдельно от навигации хаба) ======================

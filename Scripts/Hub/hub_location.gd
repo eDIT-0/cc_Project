@@ -17,6 +17,12 @@ extends Resource
 @export_group("Навигация")
 @export var choices: Array[HubChoice] = []
 
+@export_group("Часы работы")
+## Когда на локацию можно зайти (магазин ночью закрыт). Закрыто — пункты,
+## ведущие сюда, видны, но неактивны, с припиской [closed_text].
+@export_flags("Рассвет", "День", "Закат", "Ночь") var open_phases: int = 15
+@export var closed_text: String = "Закрыто"
+
 @export_group("Персонажи")
 ## Кто может быть на локации. Кто виден прямо сейчас — решает расписание
 ## самого NPC (NPCData.present_phases), см. get_present_npcs().
@@ -25,6 +31,11 @@ extends Resource
 @export_group("Неприятности")
 ## Что может случиться при входе (максимум одно за вход), см. HubEvent.
 @export var events: Array[HubEvent] = []
+
+
+## Можно ли сейчас зайти (по времени суток).
+func is_open() -> bool:
+	return (open_phases & PlayerState.clock.phase_bit()) != 0
 
 
 func get_background(phase: GameClock.Phase) -> Texture2D:

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MazeViewSet" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Dungeon/maze_view_set.gd" id="1_mvs"]
+[ext_resource type="Texture2D" path="res://Art/Maze/Test/night_corridor.png" id="2_corridor"]
+[ext_resource type="Texture2D" path="res://Art/Maze/Test/night_corridor_right.png" id="3_corridor_right"]
+[ext_resource type="Texture2D" path="res://Art/Maze/Test/night_corridor_left.png" id="4_corridor_left"]
+[ext_resource type="Texture2D" path="res://Art/Maze/Test/night_crossroads.png" id="5_crossroads"]
+[ext_resource type="Texture2D" path="res://Art/Maze/Test/night_dead_end.png" id="6_dead_end"]
+[ext_resource type="Texture2D" path="res://Art/Maze/Test/night_corner_right.png" id="7_corner_right"]
+[ext_resource type="Texture2D" path="res://Art/Maze/Test/night_corner_left.png" id="8_corner_left"]
+[ext_resource type="Texture2D" path="res://Art/Maze/Test/night_t_junction.png" id="9_t_junction"]
+
+[resource]
+script = ExtResource("1_mvs")
+corridor = ExtResource("2_corridor")
+corridor_right = ExtResource("3_corridor_right")
+corridor_left = ExtResource("4_corridor_left")
+crossroads = ExtResource("5_crossroads")
+dead_end = ExtResource("6_dead_end")
+corner_right = ExtResource("7_corner_right")
+corner_left = ExtResource("8_corner_left")
+t_junction = ExtResource("9_t_junction")

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MazeViewSet" format=3 uid="uid://c3n0er8dnxl8c"]
+
+[ext_resource type="Script" uid="uid://7pnysmpqkias" path="res://Scripts/Dungeon/maze_view_set.gd" id="1_mvs"]
+[ext_resource type="Texture2D" uid="uid://dvrmwtddus1hr" path="res://Art/Maze/Test/day_corridor.png" id="2_corridor"]
+[ext_resource type="Texture2D" uid="uid://dgbdttvntd1qi" path="res://Art/Maze/Test/day_corridor_right.png" id="3_corridor_right"]
+[ext_resource type="Texture2D" uid="uid://njmu8l6xcxjq" path="res://Art/Maze/Test/day_corridor_left.png" id="4_corridor_left"]
+[ext_resource type="Texture2D" uid="uid://d4k52mprxle4e" path="res://Art/Maze/Test/day_crossroads.png" id="5_crossroads"]
+[ext_resource type="Texture2D" uid="uid://cgfkmug4td4rf" path="res://Art/Maze/Test/day_dead_end.png" id="6_dead_end"]
+[ext_resource type="Texture2D" uid="uid://c7ur552tu5r7a" path="res://Art/Maze/Test/day_corner_right.png" id="7_corner_right"]
+[ext_resource type="Texture2D" uid="uid://d4npivhim1tkl" path="res://Art/Maze/Test/day_corner_left.png" id="8_corner_left"]
+[ext_resource type="Texture2D" uid="uid://d2dn5a6e7wh7a" path="res://Art/Maze/Test/day_t_junction.png" id="9_t_junction"]
+
+[resource]
+script = ExtResource("1_mvs")
+corridor = ExtResource("2_corridor")
+corridor_right = ExtResource("3_corridor_right")
+corridor_left = ExtResource("4_corridor_left")
+crossroads = ExtResource("5_crossroads")
+dead_end = ExtResource("6_dead_end")
+corner_right = ExtResource("7_corner_right")
+corner_left = ExtResource("8_corner_left")
+t_junction = ExtResource("9_t_junction")

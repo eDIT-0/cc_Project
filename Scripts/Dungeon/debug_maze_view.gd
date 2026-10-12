@@ -5,13 +5,16 @@ extends Node2D
 ## обсуждение VN-подхода). Этот скрипт — просто чтобы глазами увидеть,
 ## что генератор реально что-то строит, пока макет не готов.
 ##
-## Теперь это ТОЛЬКО вид: рисует карту и переводит WASD в DungeonRun.try_move().
+## Теперь это ТОЛЬКО вид: рисует карту и переводит WASD в DungeonRun.try_step().
 ## Все правила и состояние забега (позиция игрока, ивенты, квесты, торговец,
 ## "дыра в стене", выход) живут в DungeonRun — новый экран вместо этого
 ## узла должен повторить только то, что есть здесь: подписаться на сигналы
-## DungeonRun, рисовать и звать try_move().
+## DungeonRun, рисовать и звать try_step().
+## Фон от первого лица рисует отдельный узел — MazeBackground.
 ##
-## Управление: WASD — абсолютные стороны света (W=север, не "вперёд").
+## Управление — относительно взгляда: W вперёд, A налево, D направо,
+## S назад (каждое — шаг; после шага смотришь туда, куда шёл).
+## На карте взгляд — тёмный треугольник на квадрате игрока.
 ## Tab — показать/скрыть расстояние от старта по коридорам в каждой комнате.
 
 @export var generator: DungeonGenerator  ## Только для чтения тайлов при отрисовке
@@ -59,6 +62,23 @@ func _draw() -> void:
 		tile_size - 8, tile_size - 8
 	)
 	draw_rect(player_rect, Color.WHITE)
+	_draw_facing(player_rect)
+
+
+## Треугольник-"нос" в сторону взгляда.
+func _draw_facing(rect: Rect2) -> void:
+	var c := rect.get_center()
+	var r := rect.size.x * 0.45
+	var forward: Vector2
+	match run.get_facing():
+		DungeonTypes.Direction.NORTH: forward = Vector2(0, -1)
+		DungeonTypes.Direction.EAST: forward = Vector2(1, 0)
+		DungeonTypes.Direction.SOUTH: forward = Vector2(0, 1)
+		_: forward = Vector2(-1, 0)
+	var side := Vector2(-forward.y, forward.x)
+	draw_colored_polygon(PackedVector2Array([
+		c + forward * r, c - forward * r * 0.5 + side * r * 0.7, c - forward * r * 0.5 - side * r * 0.7,
+	]), Color.BLACK)
 
 
 func _draw_room_distances() -> void:
@@ -104,12 +124,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if run == null or not run.is_running() or _dialogue_box.is_active():
 		return
 
-	var direction: DungeonTypes.Direction
+	var step: DungeonRun.Step
 	match event.keycode:
-		KEY_W: direction = DungeonTypes.Direction.NORTH
-		KEY_S: direction = DungeonTypes.Direction.SOUTH
-		KEY_A: direction = DungeonTypes.Direction.WEST
-		KEY_D: direction = DungeonTypes.Direction.EAST
+		KEY_W: step = DungeonRun.Step.FORWARD
+		KEY_S: step = DungeonRun.Step.BACK
+		KEY_A: step = DungeonRun.Step.LEFT
+		KEY_D: step = DungeonRun.Step.RIGHT
 		_: return
 
-	run.try_move(direction)
+	run.try_step(step)

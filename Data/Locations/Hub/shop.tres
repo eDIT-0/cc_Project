@@ -14,4 +14,5 @@ location_id = "shop"
 display_name = "Магазин"
 intro_text = ""
 choices = Array[ExtResource("1_0c2bd")]([ExtResource("2_n3y8l")])
+open_phases = 6
 npcs = Array[ExtResource("3_op77q")]([ExtResource("4_647jl"), ExtResource("5_647jl")])

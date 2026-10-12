@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_wh")
-title = "Дыра в стене"
+title = "Дыра в сте30не"
 max_occurrences_per_run = 2
 dialogue = ExtResource("2_wh_dlg")
 requires_wall_hole_geometry = true

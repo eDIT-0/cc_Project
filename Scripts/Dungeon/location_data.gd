@@ -43,8 +43,9 @@ extends Resource
 
 @export_group("Случайные ивенты")
 ## Локация под открытым небом / живёт по часам: ивенты фильтруются по
-## времени суток (RandomEvent.phases). Выключено (подземелье, бункер) —
-## фазы игнорируются, доступны все ивенты.
+## времени суток (RandomEvent.phases), фоны берутся по фазе (views_*).
+## Выключено (подземелье, бункер) — фазы игнорируются: доступны все ивенты,
+## фон всегда views_day.
 @export var time_of_day_matters: bool = false
 ## Единый пул для этой локации — просто докидываешь подготовленные
 ## RandomEvent в инспекторе, без кода. Раньше тут было два массива
@@ -77,6 +78,15 @@ extends Resource
 ## Пусто — общие фразы из DungeonRun. Без двоеточий (иначе Dialogue Manager
 ## сочтёт начало фразы именем говорящего).
 @export var loot_find_texts: Array[String] = []
+
+@export_group("Вид от первого лица")
+## Фоны лабиринта по времени суток. Обязателен только views_day — его же
+## берём, если для текущей фазы набора нет, и всегда, если у локации
+## выключен time_of_day_matters (подземелье: время суток не видно).
+@export var views_day: MazeViewSet
+@export var views_dawn: MazeViewSet
+@export var views_dusk: MazeViewSet
+@export var views_night: MazeViewSet
 
 @export_group("Поражение")
 ## Общая сцена поражения ВНЕ боя для этой локации (урон от событий и т.п.).
@@ -141,3 +151,17 @@ func _weighted_pick(pool: Array):
 		if roll < 0:
 			return e
 	return pool[pool.size() - 1]  # запасной вариант на случай ошибки округления
+
+
+## Набор фонов для текущего времени суток (см. группу "Вид от первого лица").
+func get_view_set(phase: GameClock.Phase) -> MazeViewSet:
+	var by_phase: MazeViewSet = null
+	if time_of_day_matters:
+		match phase:
+			GameClock.Phase.DAWN:
+				by_phase = views_dawn
+			GameClock.Phase.DUSK:
+				by_phase = views_dusk
+			GameClock.Phase.NIGHT:
+				by_phase = views_night
+	return by_phase if by_phase != null else views_day

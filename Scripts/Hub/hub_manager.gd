@@ -28,6 +28,11 @@ func _ready() -> void:
 	# Поэтому старт локации теперь запускает сам HubUI, уже после подписки.
 
 
+## Локация по id (или null) — HubUI проверяет, открыта ли цель перехода.
+func get_location(location_id: String) -> HubLocation:
+	return _locations_by_id.get(location_id)
+
+
 func go_to(location_id: String) -> void:
 	if not _locations_by_id.has(location_id):
 		push_error("HubManager: локация '%s' не найдена среди назначенных locations!" % location_id)

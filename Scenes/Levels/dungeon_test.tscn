@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://d0tqvd0ims2uv" path="res://Scripts/Dungeon/debug_maze_view.gd" id="3_ujpag"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/dialogue_box.tscn" id="4_dbox"]
 [ext_resource type="Script" uid="uid://cq2vohqkr14jc" path="res://Scripts/Dungeon/dungeon_run.gd" id="5_run"]
+[ext_resource type="Script" uid="uid://dexciw8sc6ose" path="res://Scripts/Dungeon/maze_background.gd" id="6_5m617"]
 
 [node name="DungeonTest" type="Node" unique_id=150499734]
 script = ExtResource("1_6xevg")
@@ -23,3 +24,7 @@ run = NodePath("../DungeonRun")
 
 [node name="DialogueBox" parent="UILayer" unique_id=1016342598 instance=ExtResource("4_dbox")]
 unique_name_in_owner = true
+
+[node name="MazeBackground" type="CanvasLayer" parent="." unique_id=1119621523 node_paths=PackedStringArray("run")]
+script = ExtResource("6_5m617")
+run = NodePath("../DungeonRun")

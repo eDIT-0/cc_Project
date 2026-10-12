@@ -1,9 +1,8 @@
 [gd_resource type="Resource" script_class="HubChoice" format=3]
 
 [ext_resource type="Script" path="res://Scripts/Hub/hub_choice.gd" id="1_choice"]
-[ext_resource type="Resource" path="res://Dialogue/wardrobe.dialogue" id="2_dlg"]
 
 [resource]
 script = ExtResource("1_choice")
 label = "Шкаф"
-action_dialogue = ExtResource("2_dlg")
+action_screen = 1

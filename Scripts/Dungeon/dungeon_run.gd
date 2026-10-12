@@ -9,7 +9,12 @@ extends Node
 ## пришлось бы вырезать по живому. Теперь разделение такое:
 ##   DungeonGenerator — строит лабиринт и хранит тайлы (карта);
 ##   DungeonRun       — правила и состояние забега (этот файл);
-##   любой вид        — только рисует и переводит ввод в вызовы try_move().
+##   любой вид        — только рисует и переводит ввод в вызовы try_step().
+##
+## Движение — как в Grimrock-подобных "от первого лица": у игрока есть
+## взгляд (_facing). W — шаг вперёд, A/D — шаг сразу в боковую клетку,
+## S — шаг назад; после любого шага игрок смотрит туда, куда шёл. Отдельного
+## поворота на месте нет — каждый шаг тратит время и выносливость.
 ##
 ## DungeonRun ничего не знает ни про отрисовку, ни про конкретный DialogueBox:
 ## он лишь сообщает сигналами, что изменилось и какой диалог нужно показать.
@@ -20,16 +25,20 @@ extends Node
 
 ## Лабиринт сгенерирован, игрок поставлен на старт.
 signal run_started
-## Игрок переместился (обычный шаг или "дыра в стене").
+## Игрок переместился (обычный шаг или "дыра в стене"). Взгляд — get_facing().
 signal player_moved(tile_pos: Vector2i)
 ## Изменилось содержимое клеток (событие погашено и т.п.) — повод перерисовать карту.
 signal map_changed
 ## Шаг в стену — для вида (звук/тряска/сообщение), правилам он ничего не меняет.
+## direction — абсолютная сторона света, куда пытались шагнуть.
 signal move_blocked(direction: DungeonTypes.Direction)
 ## Нужно показать диалог. Аргументы — ровно как у DialogueBox.play().
 signal dialogue_requested(resource: Resource, cue: String, extra_game_states: Array)
 
 @export var generator: DungeonGenerator
+
+## Шаг относительно взгляда игрока.
+enum Step { FORWARD, LEFT, RIGHT, BACK }
 
 ## Фразы находки по умолчанию (если у локации нет своих loot_find_texts).
 const DEFAULT_FIND_TEXTS: Array[String] = [
@@ -46,6 +55,8 @@ const DEFAULT_FIND_TEXTS: Array[String] = [
 @export_range(0, 100) var wall_hole_fail_damage: int = 5
 
 var _player_tile: Vector2i
+## Куда игрок смотрит (абсолютная сторона света).
+var _facing: DungeonTypes.Direction = DungeonTypes.Direction.NORTH
 var _is_running: bool = false
 
 ## Последний показанный случайный ивент этого забега — только для правила
@@ -67,6 +78,8 @@ var _current_merchant: MerchantData = null
 ## можно только ПОСЛЕ того, как диалог подтвердил и выбор "протиснуться",
 ## и успех попытки).
 var _wall_hole_target: Vector2i
+## В какую сторону лезем — после дыры игрок смотрит туда (даже если в стену).
+var _wall_hole_direction: DungeonTypes.Direction
 
 # --- добыча ---
 ## Последний бросок добычи (roll_loot) — ждёт collect_loot().
@@ -162,6 +175,7 @@ func _finish_defeat() -> void:
 	else:
 		_player_tile = candidates[randi() % candidates.size()]
 		generator.mark_as_visited(_player_tile)
+		_facing = _pick_open_facing(_player_tile)
 	print("☠ Поражение: очнулся в %s." % str(_player_tile))
 	player_moved.emit(_player_tile)
 	map_changed.emit()
@@ -177,9 +191,35 @@ func get_player_tile() -> Vector2i:
 	return _player_tile
 
 
-## Попытка шага в абсолютном направлении. Возвращает true, если шаг сделан.
+func get_facing() -> DungeonTypes.Direction:
+	return _facing
+
+
+## Что игрок видит перед собой — по этому вид выбирает фон (MazeViewSet).
+func get_view_kind() -> DungeonTypes.ViewKind:
+	return DungeonTypes.view_kind_for(
+		generator.can_move_from_tile(_player_tile, _facing),
+		generator.can_move_from_tile(_player_tile, generator.turn_left(_facing)),
+		generator.can_move_from_tile(_player_tile, generator.turn_right(_facing)))
+
+
+## Шаг относительно взгляда (W/A/S/D). Возвращает true, если шаг сделан.
 ## Открыт ли сейчас диалог, DungeonRun не проверяет — это забота вида,
 ## который знает про DialogueBox (см. DebugMazeView._unhandled_input).
+func try_step(step: Step) -> bool:
+	var direction := _facing
+	match step:
+		Step.LEFT:
+			direction = generator.turn_left(_facing)
+		Step.RIGHT:
+			direction = generator.turn_right(_facing)
+		Step.BACK:
+			direction = generator.turn_back(_facing)
+	return try_move(direction)
+
+
+## Шаг в абсолютном направлении; после шага игрок смотрит туда же.
+## Обычно вид зовёт try_step(), это — для особых случаев.
 func try_move(direction: DungeonTypes.Direction) -> bool:
 	if not _is_running:
 		return false
@@ -190,6 +230,7 @@ func try_move(direction: DungeonTypes.Direction) -> bool:
 		return false
 
 	_player_tile = generator.get_neighbor_tile(_player_tile, direction)
+	_facing = direction
 	PlayerState.on_maze_step()  # -выносливость, +10 игровых минут
 	var tile := generator.get_tile(_player_tile)
 	var event_type := tile.event_type if tile else DungeonTypes.EventType.EMPTY
@@ -230,6 +271,7 @@ func try_move(direction: DungeonTypes.Direction) -> bool:
 ## продвинулся он или нет).
 func apply_wall_hole_success() -> void:
 	_player_tile = _wall_hole_target
+	_facing = _wall_hole_direction
 	PlayerState.on_maze_step()  # протиснуться — тоже шаг
 	generator.mark_as_visited(_player_tile)
 	generator.consume_event(_player_tile)
@@ -239,9 +281,20 @@ func apply_wall_hole_success() -> void:
 
 # ====================== СТАРТ ЗАБЕГА ======================
 
+## Куда смотреть, появившись на клетке (старт, после поражения): в первый
+## открытый проход, чтобы не начинать носом в стену.
+func _pick_open_facing(tile_pos: Vector2i) -> DungeonTypes.Direction:
+	for dir in [DungeonTypes.Direction.NORTH, DungeonTypes.Direction.EAST,
+			DungeonTypes.Direction.SOUTH, DungeonTypes.Direction.WEST]:
+		if generator.can_move_from_tile(tile_pos, dir):
+			return dir
+	return DungeonTypes.Direction.NORTH
+
+
 func _on_dungeon_generated() -> void:
 	_player_tile = generator.get_start_tile()
 	generator.mark_as_visited(_player_tile)
+	_facing = _pick_open_facing(_player_tile)
 	_last_random_event = null
 	_random_event_occurrences.clear()
 	_current_merchant = null
@@ -348,6 +401,7 @@ func _on_random_event_tile() -> void:
 	var extra_states: Array = []
 	if chosen.requires_wall_hole_geometry:
 		_wall_hole_target = passage["target_tile"]
+		_wall_hole_direction = passage["direction"]
 		# Бросок — ДО открытия диалога, не внутри него: условия в .dialogue
 		# резолвятся только против переданных extra_game_states/автозагрузок
 		# по имени, глобальные функции (тот же randf()) им не видны.
