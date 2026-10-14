@@ -46,9 +46,12 @@ var encounter: Encounter
 var state: State = State.IDLE
 var player_energy: float = 0.0
 var player_delay: float = 0.0
+## Положительное значение означает захват; больше НЕ обратный таймер.
+## Числовой формат сохранён для совместимости существующих атак/эффектов.
 var player_immobilized: float = 0.0
 var player_stun_remaining: float = 0.0
 var _grapple_sources: Array[int] = []
+var _grapple_break_relief: int = 0
 var _player_stun_chain: int = 0
 var _player_stun_memory: float = 0.0
 var _player_stun_guard: float = 0.0
@@ -101,6 +104,7 @@ func start(enc: Encounter, settings: CombatRules, difficulty: int) -> void:
 	player_immobilized = 0.0
 	player_stun_remaining = 0.0
 	_grapple_sources.clear()
+	_grapple_break_relief = 0
 	_player_stun_chain = 0
 	_player_stun_memory = 0.0
 	_player_stun_guard = 0.0
@@ -153,6 +157,7 @@ func abort() -> void:
 	player_immobilized = 0.0
 	player_stun_remaining = 0.0
 	_grapple_sources.clear()
+	_grapple_break_relief = 0
 	if is_in_group("active_combat"):
 		remove_from_group("active_combat")
 	_notify_changed()
@@ -511,7 +516,7 @@ func _apply_pending_enemy_attack(grade: CombatDefense.Grade, defended: bool) -> 
 	if stun > 0.0:
 		stun_target(-1, stun)
 	if grapple > 0.0:
-		immobilize_player(grapple, index, partner)
+		immobilize_player(grapple, index, partner, rules.break_free_partial_relief if effect_multiplier < 1.0 else 0)
 	if arousal > 0:
 		PlayerState.stats.add_arousal(arousal)
 	if not _active:
@@ -559,25 +564,56 @@ func stun_target(index: int, seconds: float) -> bool:
 		enemy_brain.stun_memory = maxf(rules.stun_memory_seconds, duration + rules.stun_immunity_seconds)
 		enemy_brain.stun_guard = duration + rules.stun_immunity_seconds
 		enemy_brain.stun_remaining = duration
+		# Только успешно наложенное оглушение разрывает удержание.
+		# Выходы по невосприимчивости/некорректной цели выше не освобождают.
+		if _grapple_sources.has(index):
+			_release_grapple()
 	interrupt_energy(index, duration)
 	_log("Оглушение %s на %.1f с." % ["игрока" if index == -1 else "врага #%d" % (index + 1), duration])
 	_notify_changed()
 	return true
 
 
-func immobilize_player(seconds: float, source: int, partner: int = -1) -> void:
+## seconds — совместимость со старыми EnemyAttack. Положительное значение
+## накладывает постоянный захват, 0 не накладывает; время не отсчитывается.
+func immobilize_player(seconds: float, source: int, partner: int = -1, difficulty_relief: int = 0) -> void:
 	if not _active or not get_alive_indices().has(source) or seconds <= 0.0:
 		return
-	if seconds >= player_immobilized:
-		player_immobilized = seconds
-		_grapple_sources.assign([source])
-		if partner >= 0:
-			_grapple_sources.append(partner)
+	# Один действующий захват. Новая атака не переписывает владельца старого
+	# и не освобождает игрока, когда потом погибает посторонний враг.
+	if player_immobilized > 0.0:
+		_log("Ты уже в захвате — удерживающий не сменился.")
+		_notify_changed()
+		return
+	player_immobilized = seconds
+	_grapple_sources.assign([source])
+	if partner != source and get_alive_indices().has(partner):
+		_grapple_sources.append(partner)
+	_grapple_break_relief = maxi(0, difficulty_relief)
 	if state == State.TARGETING and (pending_attack == Attack.KICK or (pending_command == Command.UNIQUE and _pending_unique != null and _pending_unique.requires_free_legs)):
 		cancel_target()
-	_log("Захват: %.1f с — нельзя ударить ногой, зарядка замедлена." % player_immobilized)
+	_log("Захват — %s. D → Умения → Вырваться из захвата." % get_grapple_sources_text())
 	_refresh_intents()
 	_notify_changed()
+
+
+func get_grapple_sources_text() -> String:
+	var names: PackedStringArray = []
+	for index in _grapple_sources:
+		if get_alive_indices().has(index):
+			var enemy: EnemyData = fighters[index].data
+			names.append("%s #%d" % [enemy.display_name, index + 1])
+	return " + ".join(names) if not names.is_empty() else "Противник"
+
+
+func get_break_free_difficulty() -> int:
+	var difficulty := rules.break_free_base_difficulty - _grapple_break_relief
+	var alive_holders := 0
+	for index in _grapple_sources:
+		if get_alive_indices().has(index):
+			alive_holders += 1
+	difficulty += maxi(0, alive_holders - 1) * rules.break_free_group_penalty
+	return maxi(1, difficulty)
 
 
 func _release_grapple() -> void:
@@ -585,12 +621,12 @@ func _release_grapple() -> void:
 		_log("Захват прекращён.")
 	player_immobilized = 0.0
 	_grapple_sources.clear()
+	_grapple_break_relief = 0
 
 
 func _advance_effects(seconds: float) -> void:
-	player_immobilized = maxf(0.0, player_immobilized - seconds)
-	if player_immobilized <= 0.0:
-		_grapple_sources.clear()
+	# Захват не истекает со временем. Освобождение — отдельное действие
+	# или оглушение/поражение удерживающего. Само оглушение имеет таймер.
 	player_stun_remaining = maxf(0.0, player_stun_remaining - seconds)
 	_player_stun_guard = maxf(0.0, _player_stun_guard - seconds)
 	_player_stun_memory = maxf(0.0, _player_stun_memory - seconds)
@@ -682,6 +718,8 @@ func confirm_menu() -> void:
 		MenuKind.SKILLS:
 			if entry.key == "escape":
 				_execute_escape()
+			elif entry.key == "break_free":
+				_execute_break_free()
 			else:
 				pending_command = Command.CHARM
 				_request_target_selection()
@@ -760,6 +798,11 @@ func _refresh_menu() -> void:
 		MenuKind.SKILLS:
 			menu_entries.append({"key": "escape", "name": "Побег", "description": "Проверка DEX. Оглушение врагов облегчает побег; захват мешает. Успех — случайный выход, без опыта.", "reason": "Нет доступного выхода" if not escape_allowed else ""})
 			menu_entries.append({"key": "charm", "name": "Отвлечь", "description": "Проверка CHA против выбранного врага. Успех снижает агрессию, раздражение и похоть; провал раздражает.", "reason": ""})
+			if player_immobilized > 0.0:
+				var description := "Проверка %s. Удерживает %s. Оглушение удерживающего сразу снимает захват; совместный захват усложняет проверку. %.0f%% энергии тратится и при провале." % [rules.break_free_stat, get_grapple_sources_text(), rules.skill_energy]
+				if PlayerState.stats.is_check_hopeless(rules.break_free_stat, get_break_free_difficulty()):
+					description += " Шансы крайне малы."
+				menu_entries.append({"key": "break_free", "name": "Вырваться из захвата", "description": description, "reason": ""})
 		MenuKind.UNIQUE:
 			for attack in rules.unique_attacks:
 				if attack != null:
@@ -887,6 +930,25 @@ func _execute_escape() -> void:
 	_notify_changed()
 
 
+func _execute_break_free() -> void:
+	if not _active or state != State.MENU or player_immobilized <= 0.0 or player_delay > 0.0 or player_energy + 0.0001 < rules.skill_energy:
+		return
+	var difficulty := get_break_free_difficulty()
+	var holder := _grapple_sources[0] if not _grapple_sources.is_empty() else -1
+	_begin_action()
+	_clear_pending()
+	player_energy = maxf(0.0, player_energy - rules.skill_energy)
+	var success := PlayerState.stats.roll_check(rules.break_free_stat, difficulty)
+	if success:
+		_release_grapple()
+		_log("Ты вырвался из захвата.")
+	else:
+		_log("Вырваться не удалось — захват продолжается.")
+	reaction_requested.emit(PackedStringArray(["combat", "grapple", "break_free", "success" if success else "failure"]), -1, holder)
+	_refresh_intents()
+	_notify_changed()
+
+
 func _execute_charm() -> void:
 	if not get_alive_indices().has(selected_target) or player_delay > 0.0 or player_energy + 0.0001 < rules.skill_energy:
 		cancel_target()
@@ -989,6 +1051,7 @@ func _finish_escape() -> void:
 	player_immobilized = 0.0
 	player_stun_remaining = 0.0
 	_grapple_sources.clear()
+	_grapple_break_relief = 0
 	remove_from_group("active_combat")
 	_notify_changed()
 	combat_escaped.emit()
@@ -1157,6 +1220,7 @@ func _finish(won: bool) -> void:
 	player_immobilized = 0.0
 	player_stun_remaining = 0.0
 	_grapple_sources.clear()
+	_grapple_break_relief = 0
 	remove_from_group("active_combat")
 	_log("Победа." if won else "Поражение.")
 	_notify_changed()

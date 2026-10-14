@@ -16,6 +16,8 @@ extends Resource
 @export_range(-1, 1000) var damage: int = -1
 @export_range(0, 100) var arousal: int = 0
 @export_range(0.0, 30.0) var stun_seconds: float = 0.0
+## Старое имя сохранено для .tres: 0 — нет захвата, >0 — постоянный захват.
+## Это больше не длительность; снимается освобождением/поражением владельца.
 @export_range(0.0, 30.0) var immobilize_seconds: float = 0.0
 @export_range(0.0, 120.0) var cooldown_seconds: float = 0.0
 

@@ -110,13 +110,15 @@ func _refresh() -> void:
 	_player_hp.value = stats.hp
 	_player_energy.value = combat.player_energy
 	_player_text.text = "HP %d/%d     Энергия %.0f%%     Выносливость %d/%d" % [stats.hp, stats.get_max_hp(), combat.player_energy, stats.stamina, stats.get_max_stamina()]
+	if combat.player_immobilized > 0.0:
+		_player_text.text += "     ЗАХВАТ"
 	var effects: PackedStringArray = []
 	if combat.player_delay > 0.0:
 		effects.append("Зарядка через %.1f с" % combat.player_delay)
 	if combat.player_stun_remaining > 0.0:
 		effects.append("Оглушение %.1f с" % combat.player_stun_remaining)
 	if combat.player_immobilized > 0.0:
-		effects.append("Захват %.1f с" % combat.player_immobilized)
+		effects.append("Захват · %s · D: вырваться" % combat.get_grapple_sources_text())
 	match combat.state:
 		CombatController.State.DEFENDING: _status.text = "ЗАЩИТА · боевые часы остановлены"
 		CombatController.State.MENU: _status.text = "ПАУЗА · A/D — выбор, пробел или клик — использовать, Esc — назад"
@@ -175,6 +177,8 @@ func _refresh() -> void:
 	_hand.tooltip_text = "W · Удар рукой\n%.0f%% энергии · %d урона" % [combat.rules.hand_energy, combat.get_attack_damage(CombatController.Attack.HAND)]
 	_kick.tooltip_text = "S · Удар ногой\n%.0f%% энергии · %d урона · %d выносливости" % [combat.rules.kick_energy, combat.get_attack_damage(CombatController.Attack.KICK), combat.rules.kick_stamina]
 	_skills.tooltip_text = "D · Умения: побег и отвлечение\n%.0f%% энергии" % combat.rules.skill_energy
+	if combat.player_immobilized > 0.0:
+		_skills.tooltip_text += "\nВырваться из захвата — проверка %s" % combat.rules.break_free_stat
 	_unique.tooltip_text = "A · Уникальные атаки\nЦена самой дешёвой доступной по уровню/DEX атаки — %.0f%%" % _unique_cost()
 	_items.tooltip_text = "Пробел · Предметы из рюкзака\n%.0f%% энергии; отдельные быстрые ячейки не нужны" % combat.rules.item_energy
 	_refresh_menu_ui()
@@ -481,8 +485,16 @@ func _refresh_menu_ui() -> void:
 
 
 func _scroll_menu_selection() -> void:
+	if not is_inside_tree() or not is_instance_valid(combat) or combat.state != CombatController.State.MENU:
+		return
+	# После изменения размера контейнеры ещё могут пересчитать ширину ячеек.
+	# Ждём раскладку, затем читаем ТЕКУЩИЙ выбор, не старую кнопку.
+	for frame in range(2):
+		await get_tree().process_frame
+		if not is_inside_tree():
+			return
 	# Меню могло закрыться/перестроиться до отложенного вызова.
-	if combat == null or combat.state != CombatController.State.MENU:
+	if not is_instance_valid(combat) or combat.state != CombatController.State.MENU:
 		return
 	if combat.menu_selection < 0 or combat.menu_selection >= _menu_buttons.size():
 		return

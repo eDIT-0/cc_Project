@@ -94,3 +94,15 @@ extends Resource
 @export_range(0, 30) var defense_auto_difficulty: int = 6
 ## Доля оставшегося шанса провала, превращённая в частичный успех.
 @export_range(0.0, 1.0) var defense_auto_partial_fraction: float = 0.25
+
+
+@export_group("Освобождение из захвата")
+## Стоимость — общая skill_energy; цель известна, отдельного выбора не нужно.
+@export_enum("STR", "DEX") var break_free_stat: String = "STR"
+@export_range(1, 30) var break_free_base_difficulty: int = 6
+@export_range(0, 10) var break_free_group_penalty: int = 1
+## Устаревшее поле для чтения старых .tres. Не используется и скрыто
+## из инспектора: успешное оглушение теперь разрывает захват напрямую.
+var break_free_stun_relief: int = 2
+## Частичная защита не отменяет захват, но облегчает последующее освобождение.
+@export_range(0, 10) var break_free_partial_relief: int = 1

@@ -257,7 +257,7 @@ func _defense_demo(kind: CombatDefense.Kind) -> void:
 	if _combat.debug_force_intent(0, attack):
 		_combat.fighters[0].energy = 100.0
 		_combat._process(0.01)
-	_result.text = "Защита: идеально — 0 последствий; частично — половина; провал — полностью. Пробел/кнопка; Esc — провал."
+	_result.text = "Защита: идеально — 0 последствий; частично — ослабление; провал — полностью. Пробел/кнопка; Esc — провал."
 
 
 func _joint_defense_demo() -> void:
