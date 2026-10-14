@@ -1,9 +1,9 @@
 ~ start
 Кровать. Старая, скрипучая, но своя.
-- Лечь спать (8 часов) => sleep
+- Лечь спать (8 часов; сохранение) => sleep
 - Не сейчас => END
 
 ~ sleep
 do PlayerState.sleep()
-Ты просыпаешься отдохнувшим.
+{{PlayerState.last_save_message}}
 => END

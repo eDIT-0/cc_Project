@@ -69,7 +69,12 @@ var game_minutes: int:
 
 ## Скрытые параметры и сюжетные отметки (игроку не показываются).
 ## Флаги — да/нет ("met_boss"), счётчики — числа ("reputation").
-## Пока без сохранений — живут до перезапуска.
+## Сохраняются вместе с остальным состоянием после сна.
+var saves: BedSaveManager
+var last_sleep_save_ok: bool = false
+var last_save_message: String = ""
+var _load_spawn_pending: bool = false
+
 var _flags: Dictionary = {}
 var _values: Dictionary = {}
 
@@ -89,6 +94,10 @@ func _ready() -> void:
 		for item_id in DEBUG_START_ITEMS:
 			backpack.add(item_id, DEBUG_START_ITEMS[item_id])  # без экрана переполнения
 		money = DEBUG_START_MONEY
+
+	saves = BedSaveManager.new()
+	saves.player = self
+	add_child(saves)
 
 
 # ====================== ВРЕМЯ И ДЕЙСТВИЯ ======================
@@ -116,9 +125,18 @@ func on_hub_move() -> void:
 ## (опьянение выветривается), затем полностью восстанавливаются здоровье и
 ## выносливость. Из диалога: do PlayerState.sleep()
 func sleep() -> void:
+	var authorization := saves.authorize_sleep()
+	if authorization.get("duplicate", false): return
+	last_sleep_save_ok = false
+	if not authorization.ok:
+		last_save_message = authorization.error
+		return
 	advance_time(SLEEP_MINUTES)
 	stats.restore_all()
-	print("🛏 Сон: %s. Здоровье и выносливость восстановлены." % format_minutes(SLEEP_MINUTES))
+	var result := saves.save_after_sleep()
+	last_sleep_save_ok = result.ok
+	last_save_message = "Ты просыпаешься отдохнувшим. Игра сохранена." if result.ok else "Ты отдохнул, но сохранение не удалось. " + result.error
+	if not result.ok: push_warning(last_save_message)
 
 
 ## "3 ч 20 мин" — для отладочных экранов.

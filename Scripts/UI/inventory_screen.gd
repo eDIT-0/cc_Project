@@ -104,6 +104,7 @@ func is_open() -> bool:
 ## Экран хранилища в квартире (рюкзак <-> хранилище). Корутина: в диалоге
 ## обычный  do InventoryScreen.open_stash()  — диалог дождётся закрытия.
 func open_stash() -> void:
+	if get_tree().get_first_node_in_group("save_load_menu") != null: return
 	if _stash_screen.is_open() or _is_open:
 		return
 	_stash_screen.open()
@@ -115,6 +116,7 @@ func is_resolving_overflow() -> bool:
 
 
 func open(in_combat: bool = false) -> void:
+	if get_tree().get_first_node_in_group("save_load_menu") != null: return
 	# Боевые предметы появятся на этапе 3; обычный экран не обходит стоимость.
 	if get_tree().get_first_node_in_group("active_combat") != null:
 		return
@@ -168,6 +170,7 @@ func resolve_overflow(item: ItemData, amount: int) -> int:
 # ====================== ВВОД ======================
 
 func _input(event: InputEvent) -> void:
+	if get_tree().get_first_node_in_group("save_load_menu") != null: return
 	if not (event is InputEventKey) or not event.pressed or event.echo:
 		return
 

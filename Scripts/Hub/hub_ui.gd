@@ -25,8 +25,10 @@ var _pending_talk: NPCTalk = null
 var _hub_defeat_pending: bool = false
 ## Следующий вход на локацию — без неприятностей (возврат домой после сбоя).
 var _skip_events_once: bool = false
+var _skip_intro_once: bool = false
 
 func _ready() -> void:
+	add_to_group("hub_ui")
 	if hub_manager == null:
 		push_error("HubUI: поле Hub Manager не назначено в инспекторе!")
 		return
@@ -38,7 +40,13 @@ func _ready() -> void:
 
 	# Стартовую локацию запускаем отсюда, а не из HubManager._ready() —
 	# так гарантированно подписываемся на сигналы ДО первой эмиссии.
-	hub_manager.go_to(hub_manager.start_location_id)
+	if PlayerState._load_spawn_pending:
+		PlayerState._load_spawn_pending = false
+		_skip_events_once = true
+		_skip_intro_once = true
+		hub_manager.go_to(HOME_LOCATION_ID)
+	else:
+		hub_manager.go_to(hub_manager.start_location_id)
 
 
 ## Цифровой выбор для навигации по хабу — тот же принцип, что в DialogueBox
@@ -81,6 +89,10 @@ func _on_location_changed(location: HubLocation) -> void:
 			_dialogue_box.play(hub_event.dialogue, hub_event.start_from, [{"event": hub_event, "location": location,
 				"pics": EventPictures.new(hub_event.images, hub_event.show_first_image)}])
 			return
+
+	if _skip_intro_once:
+		_skip_intro_once = false
+		return
 
 	# intro_text — переходный рудимент, теперь просто открывает диалог
 	# через create_resource_from_text вместо собственной логики показа.

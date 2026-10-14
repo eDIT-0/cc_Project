@@ -33,6 +33,7 @@ func is_open() -> bool:
 
 
 func open() -> void:
+	if get_tree().get_first_node_in_group("save_load_menu") != null: return
 	if get_tree().get_first_node_in_group("active_combat") != null:
 		return
 	_is_open = true
@@ -46,6 +47,7 @@ func close() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if get_tree().get_first_node_in_group("save_load_menu") != null: return
 	if not (event is InputEventKey) or not event.pressed or event.echo:
 		return
 	if not _is_open:
