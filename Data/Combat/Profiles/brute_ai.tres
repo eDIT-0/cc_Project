@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://Scripts/Combat/enemy_attack.gd" id="2_attack_script"]
+[ext_resource type="Texture2D" path="res://Art/Enemies/Test/brute.png" id="3_figure"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/brute_hit.tres" id="atk_0"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/brute_stun.tres" id="atk_1"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/brute_wall.tres" id="atk_2"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/brute_joint.tres" id="atk_3"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = "brute"
+figure = ExtResource("3_figure")
+display_name = "Громила"
+xp_reward = 40
+max_hp = 44
+attack_damage = 8
+charge_seconds = 16.0
+base_aggression = 55.0
+base_irritation = 5.0
+base_lust = 15.0
+passive_lust_per_second = 0.1
+attacks = Array[ExtResource("2_attack_script")]([ExtResource("atk_0"), ExtResource("atk_1"), ExtResource("atk_2"), ExtResource("atk_3")])

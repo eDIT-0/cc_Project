@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://db3fagc1jcpfl" path="res://Scripts/Dungeon/location_data.gd" id="1_u0g8t"]
 [ext_resource type="Resource" uid="uid://b3lwpe3kk7g1w" path="res://Data/Quests/Test_main.tres" id="1_x8kmx"]
 [ext_resource type="Resource" uid="uid://dt3yiftcdp84i" path="res://Data/Loot/test_loot_normal.tres" id="2_0hqmp"]
+[ext_resource type="Resource" uid="uid://dnrw1d6ash67" path="res://Data/Encounters/test_encounters_normal.tres" id="2_pco2s"]
 [ext_resource type="Script" uid="uid://cddtemo2d3s8o" path="res://Scripts/Dungeon/side_quest_event.gd" id="3_8jiam"]
 [ext_resource type="Resource" uid="uid://divsqlvaqymfy" path="res://Scripts/Quests/test_second.tres" id="4_u6c2l"]
 [ext_resource type="Resource" uid="uid://c7mruc34qaj0d" path="res://Scripts/Quests/test_quest.tres" id="5_qw111"]
@@ -33,6 +34,7 @@ merchant_chance = 1.0
 loot_normal = ExtResource("2_0hqmp")
 views_day = ExtResource("15_kurpa")
 views_night = ExtResource("16_pco2s")
+encounters_normal = ExtResource("2_pco2s")
 defeat_dialogue = ExtResource("1_7h6gf")
 min_reward_count = 1
 metadata/_custom_type_script = "uid://db3fagc1jcpfl"

@@ -88,6 +88,15 @@ extends Resource
 @export var views_dusk: MazeViewSet
 @export var views_night: MazeViewSet
 
+@export_group("Противники (по сложности)")
+## Кто встречается на клетках ENEMY, группы, шанс заметить первым — см.
+## EncounterTable. Нет таблицы для сложности — ближайшая более лёгкая.
+@export var encounters_easy: EncounterTable
+@export var encounters_normal: EncounterTable
+@export var encounters_hard: EncounterTable
+@export var encounters_very_hard: EncounterTable
+@export var encounters_extreme: EncounterTable
+
 @export_group("Поражение")
 ## Общая сцена поражения ВНЕ боя для этой локации (урон от событий и т.п.).
 ## В бою будет своя — у конкретного врага. Нужна секция ~ start; в диалог
@@ -97,6 +106,15 @@ extends Resource
 
 @export_group("Дополнительно")
 @export var min_reward_count: int = 2
+
+
+## Таблица встреч для сложности; нет своей — ближайшая более лёгкая.
+func get_encounter_table(difficulty: Difficulty.Level) -> EncounterTable:
+	var tables := [encounters_easy, encounters_normal, encounters_hard, encounters_very_hard, encounters_extreme]
+	for level in range(int(difficulty), -1, -1):
+		if tables[level] != null:
+			return tables[level]
+	return null
 
 
 ## Таблица добычи для сложности; нет своей — ближайшая более лёгкая.

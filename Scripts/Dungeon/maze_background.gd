@@ -9,12 +9,17 @@ extends CanvasLayer
 ##
 ## Нет картинки для этого вида — серый фон и подпись с названием вида
 ## (удобно, пока арт не нарисован).
+##
+## Во время встречи на фоне стоят фигуры противников в полный рост
+## (EnemyData.figure) — отдельно от вставок событий (pics). Нет картинки —
+## силуэт-заглушка с именем.
 
 @export var run: DungeonRun
 
 var _rect: TextureRect
 var _placeholder: ColorRect
 var _label: Label
+var _figures: HBoxContainer
 
 
 func _ready() -> void:
@@ -25,6 +30,10 @@ func _ready() -> void:
 		return
 	run.run_started.connect(_refresh)
 	run.player_moved.connect(func(_tile): _refresh())
+	run.encounter_started.connect(_show_figures)
+	# Временный боевой экран рисует кликабельные копии фигур сам.
+	run.combat_started.connect(func(_combat): _figures.hide())
+	run.encounter_ended.connect(func(_enc): _clear_figures())
 	PlayerState.clock.phase_changed.connect(_on_phase_changed)
 
 
@@ -54,6 +63,42 @@ func _refresh() -> void:
 		_label.text = "[нет фона] %s · %s" % [DungeonTypes.VIEW_KIND_NAMES[kind], PlayerState.clock.get_phase_name()]
 
 
+# ====================== ФИГУРЫ ПРОТИВНИКОВ ======================
+
+func _show_figures(encounter: Encounter) -> void:
+	_clear_figures()
+	_figures.show()
+	for enemy in encounter.enemies:
+		_figures.add_child(_make_figure(enemy))
+
+
+func _clear_figures() -> void:
+	for child in _figures.get_children():
+		child.queue_free()
+
+
+func _make_figure(enemy: EnemyData) -> Control:
+	if enemy.figure != null:
+		var rect := TextureRect.new()
+		rect.texture = enemy.figure
+		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		rect.custom_minimum_size = Vector2(160, 0)
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return rect
+	# Заглушка: тёмный силуэт с именем.
+	var box := ColorRect.new()
+	box.color = Color(0.08, 0.05, 0.05, 0.85)
+	box.custom_minimum_size = Vector2(160, 0)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var label := Label.new()
+	label.text = enemy.display_name
+	label.set_anchors_preset(Control.PRESET_CENTER)
+	box.add_child(label)
+	return box
+
+
 func _build_ui() -> void:
 	_placeholder = ColorRect.new()
 	_placeholder.color = Color(0.2, 0.2, 0.22)
@@ -75,3 +120,15 @@ func _build_ui() -> void:
 	_label.add_theme_font_size_override("font_size", 22)
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_label)
+
+	# Фигуры: снизу по центру, в полный рост (до ~85% высоты экрана),
+	# стоят "чуть подальше" — не во весь экран.
+	_figures = HBoxContainer.new()
+	_figures.anchor_left = 0.2
+	_figures.anchor_right = 0.85
+	_figures.anchor_top = 0.15
+	_figures.anchor_bottom = 1.0
+	_figures.alignment = BoxContainer.ALIGNMENT_CENTER
+	_figures.add_theme_constant_override("separation", 24)
+	_figures.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_figures)

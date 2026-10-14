@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyAttack" format=3 uid="uid://c0uc43mtt7ukb"]
+
+[ext_resource type="Script" uid="uid://cjy3y8lkjnrr" path="res://Scripts/Combat/enemy_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+attack_id = "bandit_hold"
+display_name = "Захват руки"
+tags = PackedStringArray("grapple")
+damage = 2
+immobilize_seconds = 5.0
+cooldown_seconds = 12.0
+base_weight = 1.0
+irritation_weight = 0.02
+lust_weight = 0.04
+min_lust = 15.0

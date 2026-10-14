@@ -121,7 +121,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if run == null or not run.is_running() or _dialogue_box.is_active():
+	if run == null or not run.is_running() or _dialogue_box.is_active() or run.is_in_encounter() or run.is_defeat_in_progress():
 		return
 
 	var step: DungeonRun.Step

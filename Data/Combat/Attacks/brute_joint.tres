@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyAttack" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/enemy_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+attack_id = "brute_joint"
+display_name = "Совместный натиск"
+tags = PackedStringArray("joint", "strike", "stun")
+damage = 12
+stun_seconds = 2.0
+cooldown_seconds = 20.0
+base_weight = 2.0
+aggression_weight = 0.03
+min_aggression = 40.0
+joint = true
+partner_energy = 60.0

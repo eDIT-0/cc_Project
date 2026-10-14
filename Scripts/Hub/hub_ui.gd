@@ -78,7 +78,8 @@ func _on_location_changed(location: HubLocation) -> void:
 			push_warning("HubEvent '%s': не назначен dialogue." % hub_event.title)
 		else:
 			hub_event.mark_triggered()
-			_dialogue_box.play(hub_event.dialogue, hub_event.start_from, [{"event": hub_event, "location": location}])
+			_dialogue_box.play(hub_event.dialogue, hub_event.start_from, [{"event": hub_event, "location": location,
+				"pics": EventPictures.new(hub_event.images, hub_event.show_first_image)}])
 			return
 
 	# intro_text — переходный рудимент, теперь просто открывает диалог

@@ -36,8 +36,9 @@ extends Resource
 ## условий ради единственного потребителя.
 @export var requires_wall_hole_geometry: bool = false
 
-@export_group("Оформление (задел на будущее)")
-## Пока нигде не читается — рендер лабиринта временный, см. DebugMazeView.
-## Поле уже тут, чтобы не пересобирать ресурсы задним числом, когда
-## появится нормальный экран с картинкой вместо консоли.
-@export var image: Texture2D
+@export_group("Картинки")
+## Вставки поверх фона (см. EventPictures). №0 показывается сразу при
+## срабатывании (если show_first_image), дальше — из диалога:
+## do pics.show(1) / do pics.next() / do pics.hide().
+@export var images: Array[Texture2D] = []
+@export var show_first_image: bool = true

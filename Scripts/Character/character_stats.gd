@@ -19,10 +19,9 @@ extends RefCounted
 
 signal changed
 ## Возбуждение дошло до 100: сброс в 0 и штраф к здоровью/выносливости
-## (см. add_arousal). Сигнал — для боя: TODO боевой контроллер по нему
-## сбрасывает шкалу энергии персонажа (пропуск "хода" / кулдаун).
+## (см. add_arousal). CombatController сбрасывает энергию и блокирует зарядку.
 signal arousal_peaked
-## Здоровье упало до 0. Обработку смерти подключит бой/забег — TODO.
+## Здоровье упало до 0. В бою обрабатывает CombatController, вне боя — забег.
 signal died
 ## Новый уровень (может прийти несколько раз подряд за одну большую награду).
 signal leveled_up(new_level: int)
@@ -35,11 +34,12 @@ const STAT_NAMES := {
 const START_STATS := { "STR": 4, "DEX": 6, "CON": 5, "INT": 3, "CHA": 4, "LEW": 0 }
 const LEW_MAX := 100
 
-## Здоровье / выносливость от телосложения.
+## Здоровье / выносливость от телосложения. Стартовая выносливость — 200;
+## абсолютный расход за шаг остаётся прежним (2).
 const HP_BASE := 20
 const HP_PER_CON := 4
-const STAMINA_BASE := 50
-const STAMINA_PER_CON := 10
+const STAMINA_BASE := 100
+const STAMINA_PER_CON := 20
 
 const AROUSAL_MAX := 100
 ## Пик возбуждения отнимает долю от МАКСИМУМА здоровья и выносливости.

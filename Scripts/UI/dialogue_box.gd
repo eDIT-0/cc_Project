@@ -12,6 +12,11 @@ extends Control
 ## вариантов — тоже можно и кликом по панели, и Пробелом/Enter.
 ##
 ## Публичный интерфейс для вызывающей сцены: play()/cancel()/is_active().
+##
+## Картинки события: если в extra_game_states есть {"pics": EventPictures},
+## над диалогом показывается вставка (см. EventPictures). Нет — подставляется
+## пустой, чтобы do pics.show(...) в любом диалоге не ломался. Вставка
+## пропадает вместе с диалогом.
 ## Сигнал finished — диалог дочитан до конца сам (не отменён извне).
 
 signal finished
@@ -29,6 +34,11 @@ var _current_line: DialogueLine = null
 var _current_extra_game_states: Array = []
 var _awaiting_choice: bool = false
 
+## Вставка с картинкой события — строится из кода (временный вид, до UI).
+var _picture_frame: PanelContainer
+var _picture_rect: TextureRect
+var _pictures: EventPictures = null
+
 
 func _ready() -> void:
 	# По группе другие системы узнают, идёт ли сейчас диалог, не зная, в
@@ -37,6 +47,7 @@ func _ready() -> void:
 	_panel.visible = false
 	_choices_container.visible = false
 	_panel.gui_input.connect(_on_panel_gui_input)
+	_build_picture_frame()
 
 
 ## Идёт ли сейчас диалог — вызывающая сцена опрашивает это, чтобы знать,
@@ -47,7 +58,7 @@ func is_active() -> bool:
 
 func play(resource: Resource, cue: String = "start", extra_game_states: Array = []) -> void:
 	_current_resource = resource
-	_current_extra_game_states = extra_game_states
+	_current_extra_game_states = _attach_pictures(extra_game_states)
 	_current_line = await DialogueManager.get_next_dialogue_line(resource, cue, extra_game_states)
 	_show_current_line()
 
@@ -62,6 +73,60 @@ func cancel() -> void:
 	_awaiting_choice = false
 	_panel.visible = false
 	_choices_container.visible = false
+	_bind_pictures(null)
+
+
+# ====================== КАРТИНКИ СОБЫТИЯ ======================
+
+## Найти EventPictures среди состояний (или подставить пустой) и подключить.
+func _attach_pictures(states: Array) -> Array:
+	var found: EventPictures = null
+	for state in states:
+		if state is Dictionary and state.get("pics") is EventPictures:
+			found = state["pics"]
+			break
+	var result := states
+	if found == null:
+		found = EventPictures.new()
+		result = states.duplicate()
+		result.append({"pics": found})
+	_bind_pictures(found)
+	return result
+
+
+func _bind_pictures(pictures: EventPictures) -> void:
+	if _pictures != null and _pictures.changed.is_connected(_show_picture):
+		_pictures.changed.disconnect(_show_picture)
+	_pictures = pictures
+	if _pictures != null:
+		_pictures.changed.connect(_show_picture)
+		_show_picture(_pictures.get_texture())
+	else:
+		_show_picture(null)
+
+
+func _show_picture(texture: Texture2D) -> void:
+	_picture_rect.texture = texture
+	_picture_frame.visible = texture != null
+
+
+## Рамка по центру над панелью диалога. Размер — доля экрана, картинка
+## вписывается с сохранением пропорций.
+func _build_picture_frame() -> void:
+	_picture_frame = PanelContainer.new()
+	_picture_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_picture_frame.anchor_left = 0.3
+	_picture_frame.anchor_right = 0.7
+	_picture_frame.anchor_top = 0.08
+	_picture_frame.anchor_bottom = 0.62
+	_picture_frame.visible = false
+	add_child(_picture_frame)
+
+	_picture_rect = TextureRect.new()
+	_picture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_picture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_picture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_picture_frame.add_child(_picture_rect)
 
 
 func _unhandled_input(event: InputEvent) -> void:

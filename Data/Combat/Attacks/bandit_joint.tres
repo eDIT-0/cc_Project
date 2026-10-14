@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyAttack" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/enemy_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+attack_id = "bandit_joint"
+display_name = "Совместный захват"
+tags = PackedStringArray("joint", "grapple", "strike")
+damage = 8
+immobilize_seconds = 4.0
+cooldown_seconds = 18.0
+base_weight = 1.0
+irritation_weight = 0.03
+min_aggression = 20.0
+joint = true
+partner_energy = 60.0

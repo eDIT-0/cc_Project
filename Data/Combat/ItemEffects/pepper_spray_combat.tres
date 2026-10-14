@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CombatItemEffect" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Items/combat_item_effect.gd" id="1_effect"]
+
+[resource]
+script = ExtResource("1_effect")
+stun_seconds = 6.0
+tags = PackedStringArray("item", "spray", "stun")

@@ -7,6 +7,7 @@
 
 ~ attempt
 if PlayerState.check("DEX", difficulty)
+	do pics.show(1)
 	С трудом, ободрав бока о камень, тебе удаётся протиснуться на ту сторону.
 	do run.apply_wall_hole_success()
 	=> END

@@ -532,8 +532,9 @@ func mark_as_visited(tile_pos: Vector2i) -> void:
 	tile.visited = true
 
 
-## Событие клетки израсходовано: одноразовые (враг, награда, случайный
-## ивент, сайд-квест) превращаются в EMPTY. Стойкие — нет: EXIT должен
+## Событие клетки израсходовано: одноразовые (награда, случайный
+## ивент, сайд-квест) превращаются в EMPTY. ENEMY теперь гасит DungeonRun
+## после исхода встречи; при побеге клетка сохраняется. Стойкие — нет: EXIT должен
 ## остаться навсегда, к торговцу можно вернуться (и не потерять его после
 ## первого "не сейчас"), а QUEST гасит сам DungeonRun, когда засчитывает.
 func consume_event(tile_pos: Vector2i) -> void:
@@ -544,6 +545,7 @@ func consume_event(tile_pos: Vector2i) -> void:
 		DungeonTypes.EventType.QUEST,
 		DungeonTypes.EventType.EXIT,
 		DungeonTypes.EventType.MERCHANT,
+		DungeonTypes.EventType.ENEMY,
 	]:
 		return
 	tile.event_type = DungeonTypes.EventType.EMPTY

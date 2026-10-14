@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://b3fnqlc5fi3cj"
+path="res://.godot/imported/combat_stub.dialogue-c3a7a8284d9b959104777f114c1cee0b.tres"
+
+[deps]
+
+source_file="res://Dialogue/combat_stub.dialogue"
+dest_files=["res://.godot/imported/combat_stub.dialogue-c3a7a8284d9b959104777f114c1cee0b.tres"]
+
+[params]
+
+defaults=true

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://fm6jy7oxe640"]
+
+[ext_resource type="Script" uid="uid://b6j0hxiepnk0o" path="res://Scripts/Combat/enemy_data.gd" id="1_en"]
+[ext_resource type="Script" uid="uid://cjy3y8lkjnrr" path="res://Scripts/Combat/enemy_attack.gd" id="1_rlmx1"]
+[ext_resource type="Texture2D" uid="uid://cdtv7uj7yfq1p" path="res://Art/Enemies/Test/dog.png" id="2_fig"]
+[ext_resource type="Resource" uid="uid://diwrtj4xv4qm2" path="res://Data/Combat/Attacks/dog_pin.tres" id="2_mplff"]
+
+[resource]
+script = ExtResource("1_en")
+enemy_id = "dog"
+display_name = "Бродячий пёс"
+figure = ExtResource("2_fig")
+attacks = Array[ExtResource("1_rlmx1")]([null, ExtResource("2_mplff")])
+lust_affects_escape = false
+xp_reward = 10

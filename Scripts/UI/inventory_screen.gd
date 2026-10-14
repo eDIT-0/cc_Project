@@ -115,6 +115,9 @@ func is_resolving_overflow() -> bool:
 
 
 func open(in_combat: bool = false) -> void:
+	# Боевые предметы появятся на этапе 3; обычный экран не обходит стоимость.
+	if get_tree().get_first_node_in_group("active_combat") != null:
+		return
 	_is_open = true
 	_in_combat = in_combat
 	_mode = Mode.NORMAL
@@ -169,7 +172,9 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if not _is_open:
-		if event.keycode == KEY_I and not _is_dialogue_active() and not _stash_screen.is_open():
+		if (event.keycode == KEY_I
+				and get_tree().get_first_node_in_group("active_combat") == null
+				and not _is_dialogue_active() and not _stash_screen.is_open()):
 			get_viewport().set_input_as_handled()
 			open()
 		return

@@ -33,6 +33,8 @@ func is_open() -> bool:
 
 
 func open() -> void:
+	if get_tree().get_first_node_in_group("active_combat") != null:
+		return
 	_is_open = true
 	_root.visible = true
 	_refresh()
@@ -57,6 +59,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _is_blocked() -> bool:
+	if get_tree().get_first_node_in_group("active_combat") != null:
+		return true
 	var inventory = get_node_or_null("/root/InventoryScreen")  # без типа: методы вызываются динамически
 	if inventory != null and inventory.is_open():
 		return true

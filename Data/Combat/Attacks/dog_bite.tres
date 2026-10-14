@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EnemyAttack" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/enemy_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+attack_id = "dog_bite"
+display_name = "Укус"
+tags = PackedStringArray("strike")
+damage = 4
+base_weight = 6.0
+aggression_weight = 0.04

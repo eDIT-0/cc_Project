@@ -13,3 +13,13 @@ extends Resource
 func apply(_context: Dictionary) -> bool:
 	push_warning("ItemEffect.apply() не переопределён в %s" % resource_path)
 	return false
+
+
+## Предварительная проверка без применения и без броска случайности.
+## По умолчанию сохраняет совместимость со старыми/пользовательскими эффектами.
+func can_apply(_context: Dictionary) -> bool:
+	return true
+
+
+func requires_combat_target() -> bool:
+	return false

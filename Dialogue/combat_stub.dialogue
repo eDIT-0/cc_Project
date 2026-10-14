@@ -1,0 +1,18 @@
+~ start
+Бой (заглушка) — {{enc.get_names_text()}}. {{enc.get_opening_text()}}
+- Победить => win
+- Проиграть => lose
+
+~ win
+do enc.win()
+Победа. Опыт +{{enc.get_total_xp()}}.
+do run.roll_loot()
+if run.has_pending_loot()
+	С поверженных удаётся снять — {{run.get_loot_text()}}.
+	do run.collect_loot()
+=> END
+
+~ lose
+do enc.lose()
+Силы кончаются, и мир меркнет...
+=> END

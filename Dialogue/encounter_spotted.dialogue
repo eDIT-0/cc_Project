@@ -1,0 +1,30 @@
+~ start
+Впереди — {{enc.get_names_text()}}. Тебя пока не заметили.
+- Устроить засаду (сила) [if not PlayerState.is_hopeless("STR", enc.ambush_difficulty) /] => ambush
+- Устроить засаду (сила — почти без шансов) [if PlayerState.is_hopeless("STR", enc.ambush_difficulty) /] => ambush
+- Проскользнуть мимо (ловкость) [if not PlayerState.is_hopeless("DEX", enc.sneak_difficulty) /] => sneak
+- Проскользнуть мимо (ловкость — почти без шансов) [if PlayerState.is_hopeless("DEX", enc.sneak_difficulty) /] => sneak
+- Попробовать заговорить (харизма) => talk
+
+~ ambush
+if PlayerState.check("STR", enc.ambush_difficulty)
+	Ты бросаешься из укрытия — противник не успевает среагировать.
+	do enc.ambush_success()
+else
+	Под ногой хрустит мусор. Тебя замечают — засада сорвалась.
+	do enc.fight()
+=> END
+
+~ sneak
+if PlayerState.check("DEX", enc.sneak_difficulty)
+	Ты прижимаешься к стене и тенью проскальзываешь мимо. (опыт +{{enc.get_sneak_xp()}})
+	do enc.sneak_past()
+else
+	На полпути тебя замечают — и бьют первыми.
+	do enc.fight_enemy_first()
+=> END
+
+~ talk
+Ты выходишь из тени, держа руки на виду.
+do enc.talk()
+=> END

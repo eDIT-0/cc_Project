@@ -1,7 +1,9 @@
 [gd_resource type="Resource" script_class="RandomEvent" format=3 uid="uid://tbjuhx8r8qb7"]
 
 [ext_resource type="Script" uid="uid://dblyhrtrfbmjt" path="res://Scripts/Dungeon/random_event.gd" id="1_wh"]
+[ext_resource type="Texture2D" uid="uid://dkpgnb70wnjlt" path="res://Art/Events/Test/wall_hole_0.png" id="2_pte64"]
 [ext_resource type="Resource" uid="uid://skiq8uutmp1" path="res://Dialogue/wall_hole.dialogue" id="2_wh_dlg"]
+[ext_resource type="Texture2D" uid="uid://ccxfjhnb5mrg" path="res://Art/Events/Test/wall_hole_1.png" id="3_3p4xf"]
 
 [resource]
 script = ExtResource("1_wh")
@@ -9,4 +11,5 @@ title = "Дыра в сте30не"
 max_occurrences_per_run = 2
 dialogue = ExtResource("2_wh_dlg")
 requires_wall_hole_geometry = true
+images = Array[Texture2D]([ExtResource("2_pte64"), ExtResource("3_3p4xf")])
 metadata/_custom_type_script = "uid://dblyhrtrfbmjt"

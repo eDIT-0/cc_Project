@@ -11,7 +11,8 @@ extends Resource
 ## Всё в долях: 0.05 = 5%. Итог зажимается в 0–100%.
 ## Похоть (LEW) на шанс НЕ влияет — она про варианты действий персонажа.
 ##
-## В диалог передаются {"event": этот ресурс, "location": HubLocation}.
+## В диалог передаются {"event": этот ресурс, "location": HubLocation,
+## "pics": EventPictures} — картинки: do pics.show(1) и т.д.
 
 @export var event_id: String = ""      ## уникальный ключ (для отката); пусто — путь к файлу
 @export var title: String = "Неприятность"  ## внутренний ярлык для логов
@@ -20,6 +21,11 @@ extends Resource
 @export var dialogue: DialogueResource
 ## С какой секции начинать. НЕ называть "*dialogue_cue*" — см. npc_data.gd.
 @export var start_from: String = "start"
+
+@export_group("Картинки")
+## Вставки поверх фона, как у RandomEvent (см. EventPictures).
+@export var images: Array[Texture2D] = []
+@export var show_first_image: bool = true
 
 @export_group("Когда возможно")
 ## В какие фазы суток событие вообще может случиться.

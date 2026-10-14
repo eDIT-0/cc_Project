@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://d1wuuxjay5isy"]
+
+[ext_resource type="Script" uid="uid://cjy3y8lkjnrr" path="res://Scripts/Combat/enemy_attack.gd" id="1_6ubq0"]
+[ext_resource type="Script" uid="uid://b6j0hxiepnk0o" path="res://Scripts/Combat/enemy_data.gd" id="1_en"]
+[ext_resource type="Resource" uid="uid://dgj5mvdu0l8ie" path="res://Data/Combat/Attacks/bandit_punch.tres" id="2_1f4vj"]
+[ext_resource type="Texture2D" uid="uid://s38xauc50w7l" path="res://Art/Enemies/Test/bandit.png" id="2_fig"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/bandit_pressure.tres" id="3_1cqt2"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/bandit_joint.tres" id="4_rgov4"]
+[ext_resource type="Resource" uid="uid://c0uc43mtt7ukb" path="res://Data/Combat/Attacks/bandit_hold.tres" id="5_nfdc2"]
+[ext_resource type="Resource" uid="uid://bvb1qxu26ulw6" path="res://Data/Combat/Attacks/bandit_breath.tres" id="6_bw6hf"]
+
+[resource]
+script = ExtResource("1_en")
+enemy_id = "bandit"
+display_name = "Бандит"
+figure = ExtResource("2_fig")
+attacks = Array[ExtResource("1_6ubq0")]([ExtResource("2_1f4vj"), ExtResource("3_1cqt2"), ExtResource("4_rgov4"), ExtResource("5_nfdc2"), ExtResource("6_bw6hf")])

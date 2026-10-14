@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="CombatRules" format=3 uid="uid://cc7ko6ap5rujq"]
+
+[ext_resource type="Script" uid="uid://dg08o8qkkacu1" path="res://Scripts/Combat/combat_rules.gd" id="1_rules"]
+
+[resource]
+script = ExtResource("1_rules")
+player_charge_seconds = 14.0
+enemy_difficulty_speed = PackedFloat32Array()
+ambush_delay_seconds = 14.0

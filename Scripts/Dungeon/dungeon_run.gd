@@ -32,10 +32,23 @@ signal map_changed
 ## Шаг в стену — для вида (звук/тряска/сообщение), правилам он ничего не меняет.
 ## direction — абсолютная сторона света, куда пытались шагнуть.
 signal move_blocked(direction: DungeonTypes.Direction)
+## Встреча с противниками началась / закончилась — вид показывает и
+## убирает их фигуры (MazeBackground).
+signal encounter_started(encounter: Encounter)
+signal encounter_ended(encounter: Encounter)
+## Началось настоящее сражение (после диалогов встречи).
+signal combat_started(combat: CombatController)
 ## Нужно показать диалог. Аргументы — ровно как у DialogueBox.play().
 signal dialogue_requested(resource: Resource, cue: String, extra_game_states: Array)
 
 @export var generator: DungeonGenerator
+
+## Диалоги встречи (общие для всех локаций).
+const ENCOUNTER_SPOTTED_DIALOGUE := "res://Dialogue/encounter_spotted.dialogue"
+const ENEMY_TALK_DEFAULT_DIALOGUE := "res://Dialogue/enemy_talk_default.dialogue"
+## Можно заменить ресурс настроек в инспекторе DungeonRun.
+@export var combat_rules: CombatRules = preload("res://Data/Combat/test_combat_rules.tres")
+var combat: CombatController
 
 ## Шаг относительно взгляда игрока.
 enum Step { FORWARD, LEFT, RIGHT, BACK }
@@ -55,6 +68,11 @@ const DEFAULT_FIND_TEXTS: Array[String] = [
 @export_range(0, 100) var wall_hole_fail_damage: int = 5
 
 var _player_tile: Vector2i
+var _previous_tile: Vector2i
+var _encounter_tile: Vector2i
+var _encounter_entry_tile: Vector2i
+## Конкретная группа на клетке сохраняется после побега, до конца забега.
+var _stored_encounters: Dictionary = {}
 ## Куда игрок смотрит (абсолютная сторона света).
 var _facing: DungeonTypes.Direction = DungeonTypes.Direction.NORTH
 var _is_running: bool = false
@@ -81,6 +99,11 @@ var _wall_hole_target: Vector2i
 ## В какую сторону лезем — после дыры игрок смотрит туда (даже если в стену).
 var _wall_hole_direction: DungeonTypes.Direction
 
+# --- противники ---
+## Текущая встреча (null — нет). Шаги встречи идут через диалоги, следующий
+## шаг — после конца диалога (on_dialogue_finished -> _continue_encounter).
+var _encounter: Encounter = null
+
 # --- добыча ---
 ## Последний бросок добычи (roll_loot) — ждёт collect_loot().
 var _pending_loot: Dictionary = {}
@@ -104,6 +127,18 @@ func _ready() -> void:
 	# дочерних узлов, включая этот.
 	generator.dungeon_generated.connect(_on_dungeon_generated)
 	dialogue_requested.connect(func(_r, _c, _s): _dialogue_open = true)
+	# Никаких новых автозагрузок или ручных узлов в сцене.
+	combat = CombatController.new()
+	combat.name = "CombatController"
+	add_child(combat)
+	# Итог — после стека stats.damage(): защита от повторного поражения
+	# и выдачи опыта посреди обработки атаки.
+	combat.combat_finished.connect(_on_combat_finished, CONNECT_DEFERRED)
+	combat.combat_escaped.connect(_on_combat_escaped, CONNECT_DEFERRED)
+	var screen := CombatDebugScreen.new()
+	screen.name = "CombatDebugScreen"
+	screen.combat = combat
+	add_child(screen)
 	PlayerState.stats.died.connect(_on_player_died)
 
 
@@ -123,6 +158,8 @@ func on_dialogue_finished() -> void:
 	elif _defeat_pending:
 		_defeat_pending = false
 		_start_defeat(_defeat_pending_scene)
+	elif _encounter != null:
+		_continue_encounter()
 
 
 # ====================== ПОРАЖЕНИЕ ======================
@@ -147,14 +184,17 @@ func is_defeat_in_progress() -> bool:
 	return _defeat_in_progress or _defeat_pending
 
 
-## Здоровье на нуле вне боя (события). Бой позже будет звать
-## trigger_defeat(сцена_врага) сам.
+## Здоровье на нуле вне боя (события). В бою итог приходит от контроллера.
 func _on_player_died() -> void:
+	# FINISHED тоже учитываем: контроллер уже послал отложенный итог.
+	if _encounter != null and combat != null and (combat.is_active() or combat.state == CombatController.State.FINISHED):
+		return
 	trigger_defeat()
 
 
 func _start_defeat(scene: DialogueResource) -> void:
 	_defeat_in_progress = true
+	_end_encounter()  # поражение посреди встречи — встреча окончена
 	if scene == null and generator.location_data != null:
 		scene = generator.location_data.defeat_dialogue
 	if scene == null:
@@ -176,6 +216,7 @@ func _finish_defeat() -> void:
 		_player_tile = candidates[randi() % candidates.size()]
 		generator.mark_as_visited(_player_tile)
 		_facing = _pick_open_facing(_player_tile)
+	_previous_tile = _player_tile
 	print("☠ Поражение: очнулся в %s." % str(_player_tile))
 	player_moved.emit(_player_tile)
 	map_changed.emit()
@@ -221,14 +262,19 @@ func try_step(step: Step) -> bool:
 ## Шаг в абсолютном направлении; после шага игрок смотрит туда же.
 ## Обычно вид зовёт try_step(), это — для особых случаев.
 func try_move(direction: DungeonTypes.Direction) -> bool:
-	if not _is_running:
+	if not _is_running or _encounter != null or is_defeat_in_progress() or _dialogue_open:
 		return false
+	return _move_to(direction)
 
+
+## Один реальный шаг, общий для обычного движения и успешного побега.
+func _move_to(direction: DungeonTypes.Direction) -> bool:
 	if not generator.can_move_from_tile(_player_tile, direction):
 		print("🚧 Стена — туда не пройти")
 		move_blocked.emit(direction)
 		return false
 
+	_previous_tile = _player_tile
 	_player_tile = generator.get_neighbor_tile(_player_tile, direction)
 	_facing = direction
 	PlayerState.on_maze_step()  # -выносливость, +10 игровых минут
@@ -236,9 +282,10 @@ func try_move(direction: DungeonTypes.Direction) -> bool:
 	var event_type := tile.event_type if tile else DungeonTypes.EventType.EMPTY
 
 	# Посещение и расход события — два разных действия. consume_event()
-	# чистит одноразовые события в EMPTY, а QUEST/EXIT/MERCHANT не трогает:
+	# чистит одноразовые события в EMPTY, а QUEST/EXIT/MERCHANT/ENEMY не трогает:
 	# EXIT должен остаться навсегда, к торговцу можно вернуться, а QUEST мы
-	# гасим сами в _on_main_quest_tile(). Тип события запомнен выше, ДО
+	# гасим сами в _on_main_quest_tile(), ENEMY — после исхода встречи.
+	# Тип события запомнен выше, ДО
 	# очистки, — по нему и решаем, что делать дальше.
 	generator.mark_as_visited(_player_tile)
 	generator.consume_event(_player_tile)
@@ -256,6 +303,8 @@ func try_move(direction: DungeonTypes.Direction) -> bool:
 			_on_merchant_tile()
 		DungeonTypes.EventType.REWARD:
 			_on_reward_tile()
+		DungeonTypes.EventType.ENEMY:
+			_on_enemy_tile()
 		DungeonTypes.EventType.EXIT:
 			_start_return_choice("Станция метро. Вернуться в хаб?")
 
@@ -270,6 +319,7 @@ func try_move(direction: DungeonTypes.Direction) -> bool:
 ## остаётся обычной WALL: это часть замысла (игрок не должен знать,
 ## продвинулся он или нет).
 func apply_wall_hole_success() -> void:
+	_previous_tile = _player_tile
 	_player_tile = _wall_hole_target
 	_facing = _wall_hole_direction
 	PlayerState.on_maze_step()  # протиснуться — тоже шаг
@@ -293,11 +343,16 @@ func _pick_open_facing(tile_pos: Vector2i) -> DungeonTypes.Direction:
 
 func _on_dungeon_generated() -> void:
 	_player_tile = generator.get_start_tile()
+	_previous_tile = _player_tile
+	_stored_encounters.clear()
 	generator.mark_as_visited(_player_tile)
 	_facing = _pick_open_facing(_player_tile)
 	_last_random_event = null
 	_random_event_occurrences.clear()
 	_current_merchant = null
+	if combat != null:
+		combat.abort()
+	_encounter = null
 	_is_running = true
 	PlayerState.in_dungeon = true
 	TradeManager.on_run_started()  # торговцы лабиринта перебирают товар
@@ -406,6 +461,7 @@ func _on_random_event_tile() -> void:
 		# резолвятся только против переданных extra_game_states/автозагрузок
 		# по имени, глобальные функции (тот же randf()) им не видны.
 		extra_states = [{"difficulty": wall_hole_difficulty, "fail_damage": wall_hole_fail_damage, "run": self}]
+	extra_states.append({"pics": EventPictures.new(chosen.images, chosen.show_first_image)})
 
 	dialogue_requested.emit(chosen.dialogue, "start", extra_states)
 
@@ -425,6 +481,159 @@ func _on_merchant_tile() -> void:
 		push_warning("У торговца '%s' не назначен dialogue." % _current_merchant.title)
 		return
 	dialogue_requested.emit(_current_merchant.dialogue, "start", [{"merchant": _current_merchant}])
+
+
+## ====================== ПРОТИВНИКИ ======================
+## Клетка ENEMY остаётся до исхода встречи. После побега возвращаем
+## ту же группу с сохранёнными HP/настроем. Состав новой группы —
+## из таблицы локации; с шансом игрок замечает врага первым и выбирает
+## (засада / проскользнуть / заговорить), иначе — сразу бой.
+
+func _on_enemy_tile() -> void:
+	_encounter_tile = _player_tile
+	_encounter_entry_tile = _previous_tile
+	if _stored_encounters.has(_player_tile):
+		_encounter = _stored_encounters[_player_tile]
+		_encounter.opening = Encounter.Opening.NORMAL
+		_encounter.next_step = Encounter.Next.NONE
+		encounter_started.emit(_encounter)
+		_start_combat()
+		return
+	var location := generator.location_data
+	var table: EncounterTable = location.get_encounter_table(GameManager.current_difficulty) if location != null else null
+	if table == null:
+		push_warning("DungeonRun: клетка врага — у локации нет таблицы встреч (LocationData.encounters_*).")
+		_clear_enemy_tile()
+		return
+	var is_night := location.time_of_day_matters and PlayerState.clock.is_night()
+	var enemies := table.roll_enemies(is_night)
+	if enemies.is_empty():
+		push_warning("DungeonRun: таблица встреч пуста — клетка врага ничего не даёт.")
+		_clear_enemy_tile()
+		return
+
+	_encounter = Encounter.new(enemies, table)
+	_stored_encounters[_player_tile] = _encounter
+	encounter_started.emit(_encounter)
+	var spot_chance := table.get_spot_chance(location.time_of_day_matters)
+	var spotted := randf() < spot_chance
+	print("⚔ Встреча: %s (заметить первым — %d%%: %s)" % [
+		_encounter.get_names_text(), roundi(spot_chance * 100), "да" if spotted else "нет"])
+
+	if spotted:
+		_play_encounter_dialogue(load(ENCOUNTER_SPOTTED_DIALOGUE), "start")
+	else:
+		_encounter.fight()
+		_continue_encounter()
+
+
+## Следующий шаг встречи — по тому, что выбрал последний диалог.
+func _continue_encounter() -> void:
+	var enc := _encounter
+	var step := enc.next_step
+	enc.next_step = Encounter.Next.NONE
+	match step:
+		Encounter.Next.FIGHT:
+			_start_combat()
+		Encounter.Next.TALK:
+			var leader := enc.get_leader()
+			if leader.talk_dialogue != null:
+				_play_encounter_dialogue(leader.talk_dialogue, leader.talk_start)
+			else:
+				_play_encounter_dialogue(load(ENEMY_TALK_DEFAULT_DIALOGUE), "start")
+		Encounter.Next.AVOID:
+			var xp := enc.get_avoid_xp(enc.avoid_xp_fraction)
+			print("👣 Боя удалось избежать: опыт +%d" % xp)
+			PlayerState.stats.add_xp(xp)
+			_end_encounter()
+		Encounter.Next.WIN:
+			print("🏆 Победа: опыт +%d" % enc.get_total_xp())
+			PlayerState.stats.add_xp(enc.get_total_xp())
+			_end_encounter()
+		Encounter.Next.LOSE:
+			var scene := enc.get_leader().defeat_dialogue
+			_end_encounter()
+			trigger_defeat(scene)
+		_:
+			# Диалог закончился, ничего не выбрав (ошибка в .dialogue) — бой.
+			push_warning("DungeonRun: диалог встречи не выбрал, что дальше — начинаю бой.")
+			enc.fight()
+			_start_combat()
+
+
+## Настоящий бой. Начальное преимущество — задержка зарядки, не энергия.
+func _start_combat() -> void:
+	if _encounter == null or combat.is_active():
+		return
+	combat.escape_allowed = not _get_escape_directions().is_empty()
+	combat.start(_encounter, combat_rules, GameManager.current_difficulty)
+	combat_started.emit(combat)
+
+
+func _on_combat_finished(won: bool) -> void:
+	if _encounter == null or combat.state != CombatController.State.FINISHED or is_defeat_in_progress():
+		return
+	if won:
+		_encounter.win()
+	else:
+		_encounter.lose()
+	_continue_encounter()
+
+
+## Случайный другой выход. Если других проходов нет — назад через вход.
+func _get_escape_directions() -> Array[DungeonTypes.Direction]:
+	var other: Array[DungeonTypes.Direction] = []
+	var back: Array[DungeonTypes.Direction] = []
+	for direction in [DungeonTypes.Direction.NORTH, DungeonTypes.Direction.EAST, DungeonTypes.Direction.SOUTH, DungeonTypes.Direction.WEST]:
+		if not generator.can_move_from_tile(_player_tile, direction):
+			continue
+		if generator.get_neighbor_tile(_player_tile, direction) == _encounter_entry_tile:
+			back.append(direction)
+		else:
+			other.append(direction)
+	return other if not other.is_empty() else back
+
+
+func _on_combat_escaped() -> void:
+	if _encounter == null or combat.state != CombatController.State.FINISHED or is_defeat_in_progress():
+		return
+	var directions := _get_escape_directions()
+	if directions.is_empty():
+		push_warning("DungeonRun: выходов не осталось — возобновляю встречу.")
+		_start_combat()
+		return
+	var direction := directions[randi() % directions.size()]
+	_stored_encounters[_encounter_tile] = _encounter
+	_end_encounter(true)
+	_move_to(direction)
+
+
+func _clear_enemy_tile() -> void:
+	var tile := generator.get_tile(_encounter_tile)
+	if tile != null and tile.event_type == DungeonTypes.EventType.ENEMY:
+		tile.event_type = DungeonTypes.EventType.EMPTY
+	_stored_encounters.erase(_encounter_tile)
+	map_changed.emit()
+
+
+func _play_encounter_dialogue(resource: DialogueResource, cue: String) -> void:
+	dialogue_requested.emit(resource, cue, [{"enc": _encounter, "run": self}])
+
+
+func _end_encounter(keep_tile: bool = false) -> void:
+	if _encounter == null:
+		return
+	if not keep_tile:
+		_clear_enemy_tile()
+	var enc := _encounter
+	_encounter = null
+	if combat != null:
+		combat.abort()
+	encounter_ended.emit(enc)
+
+
+func is_in_encounter() -> bool:
+	return _encounter != null
 
 
 ## Клетка награды: атмосферная фраза + что найдено, затем выдача (через

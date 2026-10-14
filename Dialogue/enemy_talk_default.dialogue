@@ -1,0 +1,27 @@
+~ start
+Тебя разглядывают настороженно, но пока не нападают.
+- Предложить разойтись миром (харизма) => peace
+- Соврать, что за тобой идут свои (харизма, сложнее) => lie
+- Передумать и напасть => fight
+
+~ peace
+if PlayerState.check("CHA", enc.talk_difficulty)
+	Короткая пауза. Тебе нехотя кивают и уступают дорогу. (опыт +{{enc.get_avoid_xp(0.5)}})
+	do enc.avoid(0.5)
+else
+	Твои слова только злят. Разговор окончен.
+	do enc.fight()
+=> END
+
+~ lie
+if PlayerState.check("CHA", enc.talk_difficulty + 2)
+	Ложь срабатывает — связываться с тобой не хотят. (опыт +{{enc.get_avoid_xp(0.75)}})
+	do enc.avoid(0.75)
+else
+	Тебе не верят. Совсем.
+	do enc.fight_enemy_first()
+=> END
+
+~ fight
+do enc.fight()
+=> END

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EnemyAttack" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/enemy_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+attack_id = "brute_stun"
+display_name = "Оглушающий удар"
+tags = PackedStringArray("strike", "stun")
+damage = 5
+stun_seconds = 3.0
+cooldown_seconds = 12.0
+base_weight = 1.0
+irritation_weight = 0.12
+min_irritation = 10.0

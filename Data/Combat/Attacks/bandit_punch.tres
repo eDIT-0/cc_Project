@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EnemyAttack" format=3 uid="uid://dgj5mvdu0l8ie"]
+
+[ext_resource type="Script" uid="uid://cjy3y8lkjnrr" path="res://Scripts/Combat/enemy_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+attack_id = "bandit_punch"
+display_name = "Удар кулаком"
+tags = PackedStringArray("strike")
+base_weight = 6.0
+aggression_weight = 0.06

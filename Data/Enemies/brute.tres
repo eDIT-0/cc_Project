@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://dsogllo2sc5p2"]
+
+[ext_resource type="Script" uid="uid://cjy3y8lkjnrr" path="res://Scripts/Combat/enemy_attack.gd" id="1_6std5"]
+[ext_resource type="Script" uid="uid://b6j0hxiepnk0o" path="res://Scripts/Combat/enemy_data.gd" id="1_en"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/brute_hit.tres" id="2_607so"]
+[ext_resource type="Texture2D" uid="uid://b2men6hrxvao1" path="res://Art/Enemies/Test/brute.png" id="2_fig"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/brute_joint.tres" id="3_e4b4m"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/brute_stun.tres" id="4_wj4nd"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/brute_wall.tres" id="5_rt1fo"]
+
+[resource]
+script = ExtResource("1_en")
+enemy_id = "brute"
+display_name = "Громила"
+figure = ExtResource("2_fig")
+attacks = Array[ExtResource("1_6std5")]([ExtResource("2_607so"), ExtResource("3_e4b4m"), ExtResource("4_wj4nd"), ExtResource("5_rt1fo")])
+xp_reward = 40

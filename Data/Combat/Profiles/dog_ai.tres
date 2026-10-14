@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://Scripts/Combat/enemy_attack.gd" id="2_attack_script"]
+[ext_resource type="Texture2D" path="res://Art/Enemies/Test/dog.png" id="3_figure"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/dog_bite.tres" id="atk_0"]
+[ext_resource type="Resource" path="res://Data/Combat/Attacks/dog_pin.tres" id="atk_1"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = "dog"
+figure = ExtResource("3_figure")
+display_name = "Бродячий пёс"
+xp_reward = 10
+max_hp = 20
+attack_damage = 4
+charge_seconds = 12.0
+base_aggression = 60.0
+base_lust = 0.0
+lust_per_attractiveness = 0.0
+can_assist_joint = false
+attacks = Array[ExtResource("2_attack_script")]([ExtResource("atk_0"), ExtResource("atk_1")])

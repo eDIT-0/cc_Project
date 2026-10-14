@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EncounterTable" format=3 uid="uid://dnrw1d6ash67"]
+
+[ext_resource type="Script" uid="uid://0oitmaqejoqi" path="res://Scripts/Combat/encounter_table.gd" id="1_tbl"]
+[ext_resource type="Script" uid="uid://d1i4geppjkm52" path="res://Scripts/Combat/encounter_entry.gd" id="2_entry"]
+[ext_resource type="Resource" uid="uid://d1wuuxjay5isy" path="res://Data/Enemies/bandit.tres" id="3_bandit"]
+[ext_resource type="Resource" path="res://Data/Enemies/brute.tres" id="4_brute"]
+[ext_resource type="Resource" uid="uid://fm6jy7oxe640" path="res://Data/Enemies/dog.tres" id="5_dog"]
+
+[sub_resource type="Resource" id="Entry_bandit"]
+script = ExtResource("2_entry")
+enemy = ExtResource("3_bandit")
+weight = 40
+
+[sub_resource type="Resource" id="Entry_brute"]
+script = ExtResource("2_entry")
+enemy = ExtResource("4_brute")
+weight = 10
+night_weight_multiplier = 3.0
+
+[sub_resource type="Resource" id="Entry_dog"]
+script = ExtResource("2_entry")
+enemy = ExtResource("5_dog")
+night_weight_multiplier = 0.5
+
+[resource]
+script = ExtResource("1_tbl")
+entries = Array[ExtResource("2_entry")]([SubResource("Entry_bandit"), SubResource("Entry_brute"), SubResource("Entry_dog")])
+extra_enemy_chances = Array[float]([0.3, 0.15])
+spot_base = 0.3

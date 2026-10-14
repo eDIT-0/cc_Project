@@ -136,6 +136,12 @@ func get_attractiveness() -> int:
 	return value("attractiveness")
 
 
+## Бонус к шансу заметить врага первым (доля: 0.05 = +5%) — ЗАГЛУШКА:
+## потом одежда, пассивные навыки и т.п. См. EncounterTable.get_spot_chance.
+func get_stealth_bonus() -> float:
+	return 0.0
+
+
 # ====================== ПРОВЕРКИ (короткие имена для диалогов) ======================
 
 ## Бросок проверки характеристики:  if PlayerState.check("DEX", 6)
